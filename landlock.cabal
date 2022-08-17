@@ -5,7 +5,20 @@ cabal-version:       2.2
 name:                landlock
 version:             0.1.0.0
 synopsis:            Haskell bindings for the Linux Landlock API
--- description:
+description:
+  This library exposes Haskell bindings for the Linux kernel Landlock API.
+  .
+  The Linux kernel Landlock API provides unprivileged access control. The goal
+  of Landlock is to enable to restrict ambient rights (e.g. global filesystem
+  access) for a set of processes. Because Landlock is a stackable LSM, it makes
+  possible to create safe security sandboxes as new security layers in addition
+  to the existing system-wide access-controls. This kind of sandbox is expected
+  to help mitigate the security impact of bugs or unexpected/malicious
+  behaviors in user space applications. Landlock empowers any process,
+  including unprivileged ones, to securely restrict themselves.
+  .
+  For more information, see the <https://landlock.io/ Landlock homepage> and its
+  <https://docs.kernel.org/userspace-api/landlock.html kernel documentation>.
 homepage:            https://github.com/NicolasT/landlock-hs
 -- bug-reports:
 license:             BSD-3-Clause
@@ -15,6 +28,8 @@ maintainer:          ikke@nicolast.be
 -- copyright:
 category:            System
 extra-source-files:  CHANGELOG.md
+
+tested-with:         GHC ==8.10.5
 
 library
   exposed-modules:     MyLib
