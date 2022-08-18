@@ -93,8 +93,6 @@ Test-Suite landlock-test
                      , tasty-expected-failure ^>=0.12.3
                      , tasty-hunit ^>=0.10.0.3
                      , tasty-quickcheck ^>=0.10.1.2
-                     , temporary ^>=1.3
-                     , unix
   Default-Language:    Haskell2010
   Other-Extensions:    DataKinds
                        FlexibleInstances
