@@ -31,6 +31,7 @@ Stability:           alpha
 Extra-Source-Files:
   CHANGELOG.md
   README.md
+  cbits/hs-landlock.h
 
 Tested-With:         GHC == 8.10.5
 
@@ -40,17 +41,64 @@ Source-Repository head
   Branch:              main
 
 Library
-  Exposed-Modules:     MyLib
-  -- other-modules:
-  -- other-extensions:
-  Build-Depends:       base ^>=4.14.2.0
+  Exposed-Modules:     System.Landlock
+  Build-Depends:       landlock-internal
+                     , base ^>=4.14.2.0
+                     , exceptions ^>=0.10.4
+                     , unix ^>=2.7.2.2
+  Build-Tool-Depends:  hsc2hs:hsc2hs
   Hs-Source-Dirs:      src
   Default-Language:    Haskell2010
+  Other-Extensions:    EmptyCase
+                       EmptyDataDeriving
+                       FlexibleContexts
+                       LambdaCase
+                       RankNTypes
+  Ghc-Options:         -Wall
+
+Library landlock-internal
+  Exposed-Modules:     System.Landlock.Flags
+                     , System.Landlock.OpenPath
+                     , System.Landlock.Rules
+                     , System.Landlock.Syscalls
+                     , System.Landlock.Version
+  Include-Dirs:        cbits
+  C-Sources:           cbits/hs-landlock.c
+  Cc-Options:          -Wall
+  Build-Depends:       base
+                     , exceptions
+                     , unix
+  Build-Tool-Depends:  hsc2hs:hsc2hs
+  Hs-Source-Dirs:      internal
+  Default-Language:    Haskell2010
+  Other-Extensions:    DataKinds
+                       FlexibleInstances
+                       GADTs
+                       KindSignatures
+                       LambdaCase
+                       StandaloneDeriving
   Ghc-Options:         -Wall
 
 Test-Suite landlock-test
-  Default-Language:    Haskell2010
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
-  Main-Is:             MyLibTest.hs
-  Build-Depends:       base ^>=4.14.2.0
+  Main-Is:             Main.hs
+  Build-Depends:       landlock
+                     , landlock-internal
+                     , base
+                     , filepath ^>=1.4.2.1
+                     , process ^>=1.6.9.0
+                     , QuickCheck ^>=2.14.2
+                     , tasty ^>=1.4.1
+                     , tasty-expected-failure ^>=0.12.3
+                     , tasty-hunit ^>=0.10.0.3
+                     , tasty-quickcheck ^>=0.10.1.2
+                     , temporary ^>=1.3
+                     , unix
+  Default-Language:    Haskell2010
+  Other-Extensions:    DataKinds
+                       FlexibleInstances
+                       LambdaCase
+                       ScopedTypeVariables
+                       TypeApplications
+  Ghc-Options:         -Wall
