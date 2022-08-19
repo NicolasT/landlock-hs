@@ -2,7 +2,7 @@ Cabal-Version:       2.2
 Build-Type:          Simple
 
 Name:                landlock
-Version:             0.1.0.0
+Version:             0.1.0.1
 Synopsis:            Haskell bindings for the Linux Landlock API
 Description:
   This library exposes Haskell bindings for the Linux kernel Landlock API.
@@ -33,7 +33,9 @@ Extra-Source-Files:
   README.md
   cbits/hs-landlock.h
 
-Tested-With:         GHC == 8.10.5
+Tested-With:         GHC ==8.10.5
+                   , GHC ==9.0.2
+                   , GHC ==9.2.2
 
 Source-Repository head
   Type:                git
@@ -43,7 +45,7 @@ Source-Repository head
 Library
   Exposed-Modules:     System.Landlock
   Build-Depends:       landlock-internal
-                     , base ^>=4.14.2.0
+                     , base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16
                      , exceptions ^>=0.10.4
                      , unix ^>=2.7.2.2
   Build-Tool-Depends:  hsc2hs:hsc2hs
