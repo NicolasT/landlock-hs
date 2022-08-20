@@ -8,6 +8,7 @@
 
 module Main (main) where
 
+import Control.Concurrent.Async (withAsync)
 import Control.Exception.Base (handleJust)
 import Control.Monad (unless)
 import Data.List (nub, sort)
@@ -31,6 +32,8 @@ import Test.Tasty.QuickCheck as QC
 import System.Landlock (AccessFsFlag(..), RulesetAttr(..), OpenPathFlags(..), abiVersion, accessFsFlags, defaultOpenPathFlags, isSupported, landlock, version1, withOpenPath)
 import System.Landlock.Rules (Rule, RuleType(..), pathBeneath)
 import System.Landlock.Syscalls (LandlockRulesetAttr(..))
+
+import ThreadedScenario (scenario)
 
 -- This test-suite is a bit "weird". We want to test various privilege-related
 -- functions. Now, whenever we drop some privileges, we can't (and shouldn't be
@@ -63,6 +66,7 @@ tests :: Bool -> TestTree
 tests hasLandlock = testGroup "Tests" [
       properties
     , (if hasLandlock then id else expectFailBecause "Landlock not supported") functionalTests
+    , (if hasLandlock then id else expectFailBecause "Landlock not supported") (scenario withAsync)
     ]
 
 properties :: TestTree

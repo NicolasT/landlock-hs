@@ -85,9 +85,11 @@ Test-Suite landlock-test
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
   Main-Is:             landlock-test.hs
+  Other-Modules:       ThreadedScenario
   Build-Depends:       landlock
                      , landlock-internal
                      , base
+                     , async ^>=2.2.3
                      , filepath ^>=1.4.2.1
                      , process ^>=1.6.9.0
                      , QuickCheck ^>=2.14.2
@@ -102,3 +104,17 @@ Test-Suite landlock-test
                        ScopedTypeVariables
                        TypeApplications
   Ghc-Options:         -Wall
+
+Test-Suite landlock-test-threaded
+  Type:                exitcode-stdio-1.0
+  Hs-Source-Dirs:      test
+  Main-Is:             landlock-test-threaded.hs
+  Other-Modules:       ThreadedScenario
+  Build-Depends:       landlock
+                     , base
+                     , async ^>=2.2.3
+                     , tasty ^>=1.4.1
+                     , tasty-expected-failure ^>=0.12.3
+                     , tasty-hunit ^>=0.10.0.3
+  Default-Language:    Haskell2010
+  Ghc-Options:         -Wall -threaded -with-rtsopts -N2
