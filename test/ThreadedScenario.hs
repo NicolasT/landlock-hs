@@ -10,7 +10,7 @@ import System.Posix.Types (CPid(..))
 import Test.Tasty (TestTree)
 import Test.Tasty.HUnit (assertFailure, testCaseSteps)
 
-import System.Landlock (AccessFsFlag(..), RulesetAttr(..), landlock)
+import System.Landlock (AccessFsFlag(..), RulesetAttr(..), unsafeLandlock)
 
 foreign import ccall unsafe "unistd.h gettid"
     gettid :: IO CPid
@@ -34,7 +34,7 @@ scenario' withAsync step = do
 
         step "Setting up Landlock sandbox"
         let flags = [AccessFsReadFile]
-        landlock (RulesetAttr flags) [] [] $ \_ -> return ()
+        unsafeLandlock (RulesetAttr flags) [] [] $ \_ -> return ()
 
         step "Assert file not readable from main thread"
         assertFileNotReadable "main"
