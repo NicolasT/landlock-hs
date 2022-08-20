@@ -26,6 +26,12 @@
 --
 -- For more information, see the [Landlock homepage](https://landlock.io/) and its
 -- [kernel documentation](https://docs.kernel.org/userspace-api/landlock.html).
+--
+-- __Note:__ as mentioned in the documentation of 'landlock', it is currently
+-- not safe to use this API with the threaded RTS, or rather, it won't function
+-- as expected, leading to potential security risks. See
+-- [this issue](https://github.com/NicolasT/landlock-hs/issues/9) for more
+-- background.
 
 module System.Landlock (
     -- * Core API
@@ -41,6 +47,8 @@ module System.Landlock (
     , AccessFsFlag(..)
     , accessFsFlags
     , accessFsFlagIsReadOnly
+    -- ** Unsafe API
+    , unsafeLandlock
     -- * Sandboxing Rules
     --
     -- | Sandboxing rules to apply.
@@ -72,6 +80,7 @@ module System.Landlock (
 #include <linux/landlock.h>
 #include <sys/prctl.h>
 
+import Control.Concurrent (rtsSupportsBoundThreads)
 import Control.Exception.Base (handleJust)
 import Control.Monad (void)
 import Control.Monad.Catch (MonadMask, bracket)
@@ -98,6 +107,9 @@ abiVersion :: IO Version
 abiVersion = Version <$> landlock_create_ruleset nullPtr 0 #{const LANDLOCK_CREATE_RULESET_VERSION}
 
 -- | Check whether Landlock is supported and enabled on the running system.
+--
+-- __Note:__ this doesn't take the use of the threaded RTS into account, see
+-- 'landlock'.
 isSupported :: IO Bool
 isSupported = handleJust unsupportedOperation (\() -> return False) $ do
     void abiVersion
@@ -154,6 +166,47 @@ restrictSelf fd flags =
   where
     flags' = toBits flags $ \case {}
 
+-- | Apply a Landlock sandbox to the current OS thread.
+--
+-- You most likely want to use 'landlock' instead. Due to @setxid@-style
+-- issues, this won't work as expected when using multiple threads.
+--
+-- The provided action can be used to register Landlock 'Rule's on the given
+-- instance (see 'addRule').
+--
+-- Once this returns, the Landlock sandbox will be in effect (see
+-- @landlock_restrict_self@), and no privileged processes can be spawned
+-- (@prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)@ has been invoked).
+--
+-- __Warning:__ calling this on a system without Landlock support, or with
+-- Landlock disabled, will result in an exception.
+unsafeLandlock :: (MonadMask m, MonadIO m)
+               => RulesetAttr
+                  -- ^ Ruleset attribute passed to @landlock_create_ruleset@.
+               -> [CreateRulesetFlag]
+                  -- ^ Flags passed to @landlock_create_ruleset@. Since no flags but
+                  --   'CreateRulesetVersion' (@LANDLOCK_CREATE_RULESET_VERSION@) are
+                  --   defined, and this flag must not be used when creating an actual
+                  --   ruleset, this should be an empty list.
+               -> [RestrictSelfFlag]
+                  -- ^ Flags passed to @landlock_restrict_self@. Since no flags are
+                  -- defined, this should be an empty list.
+               -> ((Storable (Rule r) => Rule r -> [AddRuleFlag] -> m ()) -> m a)
+                  -- ^ Action that will be called before the Landlock sandbox is
+                  -- enforced. The provided function can be used to register
+                  -- sandboxing rules (internally using @landlock_add_rule@),
+                  -- given a 'Rule' and a set of 'AddRuleFlag's. However, since no
+                  -- flags are currently defined, this should be an empty list.
+               -> m a
+                  -- ^ Result of the given action.
+unsafeLandlock attr createRulesetFlags restrictSelfFlags act =
+    bracket (liftIO $ createRuleset attr createRulesetFlags) (liftIO . closeFd . unLandlockFd) $ \fd -> do
+        res <- act (addRule fd)
+        liftIO $ do
+            void $ prctl #{const PR_SET_NO_NEW_PRIVS} 1 0 0 0
+            restrictSelf fd restrictSelfFlags
+        return res
+
 -- | Apply a Landlock sandbox to the current process.
 --
 -- The provided action can be used to register Landlock 'Rule's on the given
@@ -165,7 +218,11 @@ restrictSelf fd flags =
 --
 -- __Warning:__ calling this on a system without Landlock support, or with
 -- Landlock disabled, will result in an exception.
-landlock :: (MonadMask m, MonadIO m)
+--
+-- __Warning:__ due to @setxid@-style issues, this won't work as expected when
+-- using multiple threads. Hence, this function will throw an exception when
+-- used with the threaded RTS.
+landlock :: (MonadFail m, MonadMask m, MonadIO m)
          => RulesetAttr
             -- ^ Ruleset attribute passed to @landlock_create_ruleset@.
          -> [CreateRulesetFlag]
@@ -184,13 +241,10 @@ landlock :: (MonadMask m, MonadIO m)
             -- flags are currently defined, this should be an empty list.
          -> m a
             -- ^ Result of the given action.
-landlock attr createRulesetFlags restrictSelfFlags act =
-    bracket (liftIO $ createRuleset attr createRulesetFlags) (liftIO . closeFd . unLandlockFd) $ \fd -> do
-        res <- act (addRule fd)
-        liftIO $ do
-            void $ prctl #{const PR_SET_NO_NEW_PRIVS} 1 0 0 0
-            restrictSelf fd restrictSelfFlags
-        return res
+landlock attr createRulesetFlags restrictSelfFlags act = do
+    if rtsSupportsBoundThreads  -- Sentinel for the threaded RTS
+        then fail "landlock can't be safely used with the threaded RTS"
+        else unsafeLandlock attr createRulesetFlags restrictSelfFlags act
 
 -- | Flags passed to @landlock_add_rule@.
 --
