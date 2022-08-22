@@ -14,6 +14,9 @@ to use this API:
 
 - [landlock](https://hackage.haskell.org/package/landlock), Haskell binding for
   the Linux Landlock API
+- [psx](https://hackage.haskell.org/package/psx), a package to integrate
+  [libpsx](https://git.kernel.org/pub/scm/libs/libcap/libcap.git/tree/psx) with
+  the GHC RTS
 
 For more information, see the [Landlock homepage](https://landlock.io/) and its
 [kernel documentation](https://docs.kernel.org/userspace-api/landlock.html).
