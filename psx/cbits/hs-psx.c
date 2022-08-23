@@ -1,7 +1,12 @@
 #define _GNU_SOURCE
 
 #include <signal.h>
-#include <sys/psx_syscall.h>
+
+#ifdef BUNDLED_LIBPSX
+# include "psx/psx_syscall.h"
+#else
+# include <sys/psx_syscall.h>
+#endif
 
 #include "hs-psx.h"
 
