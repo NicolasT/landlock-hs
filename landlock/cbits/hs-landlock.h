@@ -19,6 +19,12 @@ long landlock_add_rule(const int ruleset_fd,
 long landlock_restrict_self(const int ruleset_fd,
                             const __u32 flags);
 
+int hs_landlock_prctl(int option,
+                      unsigned long arg2,
+                      unsigned long arg3,
+                      unsigned long arg4,
+                      unsigned long arg5);
+
 #ifdef __cplusplus
 }
 #endif

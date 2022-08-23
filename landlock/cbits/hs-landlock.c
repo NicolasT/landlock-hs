@@ -6,6 +6,8 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
 
+#include <hs-psx.h>
+
 #include "hs-landlock.h"
 
 #ifndef landlock_create_ruleset
@@ -28,6 +30,14 @@ long landlock_add_rule(const int ruleset_fd,
 #ifndef landlock_restrict_self
 long landlock_restrict_self(const int ruleset_fd,
                             const __u32 flags) {
-        return syscall(__NR_landlock_restrict_self, ruleset_fd, flags);
+        return hs_psx_syscall3(__NR_landlock_restrict_self, ruleset_fd, flags, 0);
 }
 #endif
+
+int hs_landlock_prctl(int option,
+                      unsigned long arg2,
+                      unsigned long arg3,
+                      unsigned long arg4,
+                      unsigned long arg5) {
+        return hs_psx_syscall6(__NR_prctl, option, arg2, arg3, arg4, arg5, 0);
+}
