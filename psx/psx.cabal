@@ -3,9 +3,9 @@ Build-Type:          Simple
 
 Name:                psx
 Version:             0.1.0.1
-Synopsis:            Integrate @libpsx@ with the GHC RTS
+Synopsis:            Integrate libpsx with the GHC RTS
 Description:
-  This library embeds libpsx in a GHC Haskell-compiled application.
+  This library embeds @libpsx@ in a GHC Haskell-compiled application.
   .
   Note @libpsx@ performs some trickery with signal handling in a process.
   Furthermore, when using this library, @sigfillset@ will be wrapped so
