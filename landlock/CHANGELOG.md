@@ -1,6 +1,11 @@
 # Revision history for landlock
 
-## 0.2.0.1 -- YYYY-mm-dd
+## 0.2.0.2 -- YYYY-mm-dd
+
+## 0.2.0.1 -- 2022-08-24
+
+* Code-wise the same as version 0.2.0.0, but said version was incorrectly
+  published on Hackage, hence re-releasing.
 
 ## 0.2.0.0 -- 2022-08-24
 
