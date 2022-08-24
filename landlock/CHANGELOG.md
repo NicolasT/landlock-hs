@@ -1,6 +1,6 @@
 # Revision history for landlock
 
-## 0.2.0.0 -- YYYY-mm-dd
+## 0.2.0.0 -- 2022-08-24
 
 * Support `base ^>=4.15` and `base ^>=4.16`, tested in CI using GHC 9.0.2 and
   GHC 9.2.2.
