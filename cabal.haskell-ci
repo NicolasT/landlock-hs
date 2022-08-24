@@ -1,1 +1,1 @@
-github-patches: .github/workflows/ubuntu-jammy.patch
+github-patches: .github/workflows/haskell-ci.patch
