@@ -2,7 +2,7 @@ Cabal-Version:       2.2
 Build-Type:          Simple
 
 Name:                psx
-Version:             0.1.0.0
+Version:             0.1.0.1
 Synopsis:            Integrate @libpsx@ with the GHC RTS
 Description:
   This library embeds libpsx in a GHC Haskell-compiled application.
