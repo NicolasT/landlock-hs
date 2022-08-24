@@ -1,0 +1,31 @@
+-- |
+-- Module:      System.PSX
+-- Description: Haskell bindings for libpsx
+-- Copyright:   (c) Nicolas Trangez, 2022
+-- License:     BSD-3-Clause
+-- Maintainer:  ikke@nicolast.be
+-- Stability:   alpha
+-- Portability: Linux
+--
+-- This library embeds libpsx in a GHC Haskell-compiled application.
+--
+-- It doesn't provide any Haskell functions. It can be (optionally) linked
+-- into applications which require @libpsx@-style functionality, potentially
+-- from C code. See @test/detect-psx.c@ for an example.
+--
+-- Note @libpsx@ performs some trickery with signal handling in a process.
+-- Furthermore, when using this library, @sigfillset@ will be wrapped so
+-- @SIGSYS@ is /not/ set, in order for the GHC RTS @ticker@ thread not to
+-- block the signal and work properly with @libpsx@.
+--
+-- See
+-- [this GHC proposal](https://github.com/ghc-proposals/ghc-proposals/pull/533)
+-- for a potential future replacement of this library using functionality built
+-- into the GHC RTS.
+--
+-- __Warning:__ @libpsx@ on current Ubuntu and Debian systems (from @libcap@
+-- 2.44) is broken. Hence, this library contains a bundled version of @libpsx@
+-- by default. Disable the @bundled-libpsx@ flag to use a system-provided
+-- version of the library, which must be from @libcap@ version 2.46 or higher.
+
+module System.PSX () where

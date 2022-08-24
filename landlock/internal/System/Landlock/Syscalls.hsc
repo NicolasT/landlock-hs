@@ -68,13 +68,14 @@ landlock_restrict_self :: #{type int}
 landlock_restrict_self ruleset_fd flags =
     throwErrnoIfMinus1 "landlock_restrict_self" $ _landlock_restrict_self ruleset_fd flags
 
-foreign import ccall unsafe "sys/prctl.h prctl"
+foreign import ccall unsafe "hs-landlock.h hs_landlock_prctl"
   _prctl :: #{type int}
         -> #{type unsigned long}
         -> #{type unsigned long}
         -> #{type unsigned long}
         -> #{type unsigned long}
         -> IO #{type int}
+
 prctl :: #{type int}
       -> #{type unsigned long}
       -> #{type unsigned long}

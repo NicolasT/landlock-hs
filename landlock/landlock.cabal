@@ -40,6 +40,7 @@ Tested-With:         GHC ==8.10.5
 Source-Repository head
   Type:                git
   Location:            https://github.com/NicolasT/landlock-hs.git
+  Subdir:              landlock
   Branch:              main
 
 Library
@@ -67,7 +68,8 @@ Library landlock-internal
   Include-Dirs:        cbits
   C-Sources:           cbits/hs-landlock.c
   Cc-Options:          -Wall
-  Build-Depends:       base
+  Build-Depends:       psx ^>=0.1
+                     , base
                      , exceptions
                      , unix
   Build-Tool-Depends:  hsc2hs:hsc2hs
