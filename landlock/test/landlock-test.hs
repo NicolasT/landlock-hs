@@ -25,8 +25,7 @@ import System.Process (CreateProcess(..), proc, readCreateProcessWithExitCode)
 
 import Test.QuickCheck.Monadic (assert, monadicIO, run)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Test.Tasty.ExpectedFailure (expectFailBecause)
-import Test.Tasty.HUnit ((@?), (@=?), (@?=), testCase, testCaseSteps)
+import Test.Tasty.HUnit ((@?), (@=?), (@?=), assertBool, testCase, testCaseSteps)
 import Test.Tasty.QuickCheck as QC
 
 import System.Landlock (AccessFsFlag(..), RulesetAttr(..), OpenPathFlags(..), abiVersion, accessFsFlags, defaultOpenPathFlags, isSupported, landlock, version1, withOpenPath)
@@ -56,17 +55,16 @@ landlockTestEnvironmentVariable = "LANDLOCK_TEST"
 main :: IO ()
 main = lookupEnv "LANDLOCK_TEST" >>= \case
     Nothing -> do
-        hasLandlock <- isSupported
-        defaultMain (tests hasLandlock)
+        defaultMain tests
     Just testName -> case lookup testName functionalTestCases of
         Nothing -> fail $ "Unknown test: " ++ testName
         Just act -> act
 
-tests :: Bool -> TestTree
-tests hasLandlock = testGroup "Tests" [
+tests :: TestTree
+tests = testGroup "Tests" [
       properties
-    , (if hasLandlock then id else expectFailBecause "Landlock not supported") functionalTests
-    , (if hasLandlock then id else expectFailBecause "Landlock not supported") (scenario withAsync)
+    , functionalTests
+    , scenario withAsync
     ]
 
 properties :: TestTree
@@ -105,6 +103,8 @@ functionalTests = testGroup "Functional Tests" $ [
           v1 <- abiVersion
           v2 <- abiVersion
           v1 @=? v2
+    , testCase "isSupported" $
+          isSupported >>= assertBool "landlock API not supported"
     ] ++ map (\(name, _) -> testCaseSteps name (`runFunctionalTest` name)) functionalTestCases
   where
     runFunctionalTest step name = do
