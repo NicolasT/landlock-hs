@@ -53,7 +53,6 @@ Library
   Hs-Source-Dirs:      src
   Default-Language:    Haskell2010
   Other-Extensions:    FlexibleContexts
-                       LambdaCase
                        RankNTypes
   Ghc-Options:         -Wall
 
