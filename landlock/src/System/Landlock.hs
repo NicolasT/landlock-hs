@@ -64,11 +64,6 @@ module System.Landlock (
     , defaultOpenPathFlags
     ) where
 
-#define _GNU_SOURCE
-
-#include <linux/landlock.h>
-#include <sys/prctl.h>
-
 import Control.Exception.Base (handleJust)
 import Control.Monad (void)
 import Control.Monad.Catch (MonadMask, bracket)
@@ -87,7 +82,7 @@ import System.Landlock.Flags (
     , accessFsFlagToBit
     , accessFsFlags
     , accessFsFlagIsReadOnly
-    , CreateRulesetFlag
+    , CreateRulesetFlag(..)
     , createRulesetFlagToBit
     , RestrictSelfFlag
     , restrictSelfFlagToBit
@@ -96,7 +91,14 @@ import System.Landlock.Flags (
     )
 import System.Landlock.OpenPath (OpenPathFlags(..), defaultOpenPathFlags, withOpenPath, withOpenPathAt)
 import System.Landlock.Rules (Rule, ruleType, pathBeneath)
-import System.Landlock.Syscalls (LandlockRulesetAttr(..), landlock_create_ruleset, landlock_add_rule, landlock_restrict_self, prctl)
+import System.Landlock.Syscalls (
+      LandlockRulesetAttr(..)
+    , landlock_create_ruleset
+    , landlock_add_rule
+    , landlock_restrict_self
+    , prctl
+    , pR_SET_NO_NEW_PRIVS
+    )
 import System.Landlock.Version (Version(..), version1)
 
 -- | Retrieve the Landlock ABI version of the running system.
@@ -104,7 +106,9 @@ import System.Landlock.Version (Version(..), version1)
 -- __Warning:__ calling this on a system without Landlock support, or with
 -- Landlock disabled, will result in an exception.
 abiVersion :: IO Version
-abiVersion = Version <$> landlock_create_ruleset nullPtr 0 #{const LANDLOCK_CREATE_RULESET_VERSION}
+abiVersion = Version <$> landlock_create_ruleset nullPtr 0 flags
+  where
+    flags = toBits [CreateRulesetVersion] createRulesetFlagToBit
 
 -- | Check whether Landlock is supported and enabled on the running system.
 isSupported :: IO Bool
@@ -181,7 +185,7 @@ landlock attr createRulesetFlags restrictSelfFlags act =
     bracket (liftIO $ createRuleset attr createRulesetFlags) (liftIO . closeFd . unLandlockFd) $ \fd -> do
         res <- act (addRule fd)
         liftIO $ do
-            void $ prctl #{const PR_SET_NO_NEW_PRIVS} 1 0 0 0
+            void $ prctl pR_SET_NO_NEW_PRIVS 1 0 0 0
             restrictSelf fd restrictSelfFlags
         return res
 
