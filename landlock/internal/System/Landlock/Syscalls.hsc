@@ -4,6 +4,7 @@ module System.Landlock.Syscalls (
     , landlock_add_rule
     , landlock_restrict_self
     , prctl
+    , pR_SET_NO_NEW_PRIVS
     ) where
 
 #include <stddef.h>
@@ -84,3 +85,6 @@ prctl :: #{type int}
       -> IO #{type int}
 prctl option arg2 arg3 arg4 arg5 =
     throwErrnoIfMinus1 "prctl" $ _prctl option arg2 arg3 arg4 arg5
+
+pR_SET_NO_NEW_PRIVS :: Num a => a
+pR_SET_NO_NEW_PRIVS = #{const PR_SET_NO_NEW_PRIVS}
