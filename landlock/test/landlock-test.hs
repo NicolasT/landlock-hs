@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 {-# OPTIONS_GHC -Wno-orphans #-}
@@ -13,8 +12,6 @@ import Control.Exception.Base (handleJust)
 import Control.Monad (unless)
 import Data.List (nub, sort)
 import Data.Proxy (Proxy(Proxy))
-import Foreign.Marshal.Alloc (alloca)
-import Foreign.Storable (Storable, peek, poke)
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode(..))
 import System.FilePath ((</>))
@@ -23,14 +20,34 @@ import System.IO.Error (isPermissionError)
 import System.Posix.Types (Fd)
 import System.Process (CreateProcess(..), proc, readCreateProcessWithExitCode)
 
-import Test.QuickCheck.Monadic (assert, monadicIO, run)
+import Test.QuickCheck.Classes.Base (
+      Laws(..)
+    , boundedEnumLaws
+    , eqLaws
+    , ordLaws
+    , showLaws
+    , storableLaws
+    )
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?), (@=?), (@?=), assertBool, testCase, testCaseSteps)
-import Test.Tasty.QuickCheck as QC
+import Test.Tasty.QuickCheck (Arbitrary(..), arbitraryBoundedEnum, testProperty)
 
-import System.Landlock (AccessFsFlag(..), RulesetAttr(..), OpenPathFlags(..), abiVersion, accessFsFlags, defaultOpenPathFlags, isSupported, landlock, version1, withOpenPath)
+import System.Landlock (
+      AccessFsFlag(..)
+    , RulesetAttr(..)
+    , OpenPathFlags(..)
+    , abiVersion
+    , accessFsFlags
+    , defaultOpenPathFlags
+    , isSupported
+    , landlock
+    , version1
+    , withOpenPath
+    )
+import System.Landlock.Flags (CreateRulesetFlag)
 import System.Landlock.Rules (Rule, RuleType(..), pathBeneath)
 import System.Landlock.Syscalls (LandlockRulesetAttr(..))
+import System.Landlock.Version (Version(..))
 
 import ThreadedScenario (scenario)
 
@@ -69,19 +86,56 @@ tests = testGroup "Tests" [
 
 properties :: TestTree
 properties = testGroup "Properties" [
-      storable "LandlockRulesetAttr" (Proxy @LandlockRulesetAttr)
-    , storable "Rule 'PathBeneath" (Proxy @(Rule 'PathBeneath))
+      testGroup "LandlockRulesetAttr" $ map lawsToTestTree [
+          eqLaws (Proxy @LandlockRulesetAttr)
+        , showLaws (Proxy @LandlockRulesetAttr)
+        , storableLaws (Proxy @LandlockRulesetAttr)
+        ]
+    , testGroup "RulesetAttr" $ map lawsToTestTree [
+          eqLaws (Proxy @RulesetAttr)
+        , showLaws (Proxy @RulesetAttr)
+        ]
+    , testGroup "CreateRulesetFlag" $ map lawsToTestTree [
+          eqLaws (Proxy @CreateRulesetFlag)
+        , showLaws (Proxy @CreateRulesetFlag)
+        -- boundedEnum laws don't work nicely with single-constructor enums
+        -- , boundedEnumLaws (Proxy @CreateRulesetFlag)
+        ]
+    , testGroup "AccessFsFlag" $ map lawsToTestTree [
+          eqLaws (Proxy @AccessFsFlag)
+        , showLaws (Proxy @AccessFsFlag)
+        , boundedEnumLaws (Proxy @AccessFsFlag)
+        , ordLaws (Proxy @AccessFsFlag)
+        ]
+    , testGroup "OpenPathFlags" $ map lawsToTestTree [
+          eqLaws (Proxy @OpenPathFlags)
+        , showLaws (Proxy @OpenPathFlags)
+        ]
+    , testGroup "Rule 'PathBeneath" $ map lawsToTestTree [
+          eqLaws (Proxy @(Rule 'PathBeneath))
+        , showLaws (Proxy @(Rule 'PathBeneath))
+        , storableLaws (Proxy @(Rule 'PathBeneath))
+        ]
+    , testGroup "Version" $ map lawsToTestTree [
+          eqLaws (Proxy @Version)
+        , showLaws (Proxy @Version)
+        , ordLaws (Proxy @Version)
+        ]
     ]
+  where
+    lawsToTestTree laws = testGroup (lawsTypeclass laws) $ flip map (lawsProperties laws) $ uncurry testProperty
 
-storable :: forall proxy a. (Eq a, Show a, Arbitrary a, Storable a) => String -> proxy a -> TestTree
-storable name _ = testGroup ("Storable for " ++ name) [
-      QC.testProperty "peek . poke == id" $
-          \a -> monadicIO $ do
-              a' <- run $ alloca $ \ptr -> do
-                  poke ptr (a :: a)
-                  peek ptr
-              assert $ a' == a
-    ]
+instance Arbitrary Version where
+    arbitrary = Version <$> arbitrary
+
+instance Arbitrary OpenPathFlags where
+    arbitrary = OpenPathFlags <$> arbitrary <*> arbitrary <*> arbitrary
+
+instance Arbitrary RulesetAttr where
+    arbitrary = RulesetAttr <$> arbitrary
+
+instance Arbitrary CreateRulesetFlag where
+    arbitrary = arbitraryBoundedEnum
 
 instance Arbitrary LandlockRulesetAttr where
     arbitrary = LandlockRulesetAttr <$> arbitrary

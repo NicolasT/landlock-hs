@@ -1,3 +1,5 @@
+{-# LANGUAGE EmptyCase #-}
+{-# LANGUAGE EmptyDataDeriving #-}
 {-# LANGUAGE LambdaCase #-}
 
 module System.Landlock.Flags (
@@ -7,6 +9,12 @@ module System.Landlock.Flags (
     , accessFsFlagToBit
     , accessFsFlags
     , accessFsFlagIsReadOnly
+    , CreateRulesetFlag(..)
+    , createRulesetFlagToBit
+    , RestrictSelfFlag
+    , restrictSelfFlagToBit
+    , AddRuleFlag
+    , addRuleFlagToBit
     ) where
 
 #include <linux/landlock.h>
@@ -117,3 +125,36 @@ accessFsFlagIsReadOnly = \case
     AccessFsMakeFifo -> False
     AccessFsMakeBlock -> False
     AccessFsMakeSym -> False
+
+
+-- | Flags passed to @landlock_create_ruleset@.
+--
+-- In the current kernel API, only @LANDLOCK_CREATE_RULESET_VERSION@ is
+-- defined, which should not be used when creating an actual Landlock
+-- encironment (cf. 'landlock').
+data CreateRulesetFlag = CreateRulesetVersion
+  deriving (Show, Eq, Enum, Bounded)
+
+createRulesetFlagToBit :: Num a => CreateRulesetFlag -> a
+createRulesetFlagToBit = \case
+    CreateRulesetVersion -> #{const LANDLOCK_CREATE_RULESET_VERSION}
+
+-- | Flags passed to @landlock_restrict_self@.
+--
+-- In the current kernel API, no such flags are defined, hence this is a type
+-- without any constructors.
+data RestrictSelfFlag
+  deriving (Show, Eq)
+
+restrictSelfFlagToBit :: Num a => RestrictSelfFlag -> a
+restrictSelfFlagToBit = \case {}
+
+-- | Flags passed to @landlock_add_rule@.
+--
+-- In the current kernel API, no such flags are defined, hence this is a type
+-- without any constructors.
+data AddRuleFlag
+  deriving (Show, Eq)
+
+addRuleFlagToBit :: Num a => AddRuleFlag -> a
+addRuleFlagToBit = \case {}
