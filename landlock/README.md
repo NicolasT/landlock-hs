@@ -13,3 +13,106 @@ including unprivileged ones, to securely restrict themselves.
 
 For more information, see the [Landlock homepage](https://landlock.io/) and its
 [kernel documentation](https://docs.kernel.org/userspace-api/landlock.html).
+
+## Example
+
+Here's a simple example, allowing read-only access to the user's SSH public
+key, full access to `tmp` and the ability to read and execute everything in
+`/usr`:
+
+```haskell
+import System.Landlock (
+      AccessFsFlag(..)
+    , OpenPathFlags(..)
+    , RulesetAttr(..)
+    , abiVersion
+    , accessFsFlags
+    , accessFsFlagIsReadOnly
+    , defaultOpenPathFlags
+    , isSupported
+    , landlock
+    , pathBeneath
+    , withOpenPath
+    )
+
+import ReadmeUtils
+
+-- These tests run with a "fake" pre-populated rootfs
+-- All files and directories in it are created using the current user,
+-- readable, writable and (in case of scripts) executable, so without
+-- Landlock, there would be no permission errors.
+
+main :: IO ()
+main = withFakeRoot $ \root -> do
+    -- Check whether Landlock is supported
+    hasLandlock <- isSupported
+
+    unless hasLandlock $
+        fail "Landlock not supported"
+
+    version <- abiVersion
+    -- Find all FS access flags for the running kernel's ABI version
+    allFlags <- lookupAccessFsFlags version
+    let roFlags = filter accessFsFlagIsReadOnly allFlags
+
+    let homeDir = root </> "home" </> "user"
+        publicKey = homeDir </> ".ssh" </> "id_ed25519.pub"
+        privateKey = homeDir </> ".ssh" </> "id_ed25519"
+        tmpDir = root </> "tmp"
+
+    -- Construct the sandbox, locking down everything by default
+    landlock (RulesetAttr allFlags) [] [] $ \addRule -> do
+        -- /tmp is fully accessible
+        withOpenPath tmpDir defaultOpenPathFlags{ directory = True } $ \tmp ->
+            addRule (pathBeneath tmp allFlags) []
+
+        -- SSH public key is readable
+        withOpenPath publicKey defaultOpenPathFlags $ \key ->
+            addRule (pathBeneath key [AccessFsReadFile]) []
+
+        -- (Real) /usr is fully accessible, but read-only (includes executable permissions)
+        withOpenPath "/usr" defaultOpenPathFlags{ directory = True } $ \usr -> do
+            addRule (pathBeneath usr roFlags) []
+
+    -- Can create and write to files in tmp
+    writeFile (tmpDir </> "program.log") "Success!"
+
+    -- Can read SSH key
+    _pubKey <- readFile publicKey
+
+    -- Can execute things in /usr
+    "Linux\n" <- readProcess ("/usr" </> "bin" </> "uname") ["-s"] ""
+
+    -- Can't read SSH private key
+    assertPermissionDenied $
+        readFile privateKey
+
+    -- Can't write to SSH public key
+    assertPermissionDenied $
+        withFile publicKey WriteMode $ \fd ->
+            hPutStrLn fd "Oops, key gone!"
+
+    -- Can't remove SSH public key
+    assertPermissionDenied $
+        removeFile publicKey
+
+    -- Can't create files in homedir
+    assertPermissionDenied $
+        writeFile (homeDir </> "whoops.txt") "This file should not exist!"
+
+    -- Can't read files from (real) /etc
+    assertPermissionDenied $
+        readFile ("/etc" </> "hosts")
+
+  where
+    lookupAccessFsFlags version = case lookup version accessFsFlags of
+        -- In a production implementation, we'd lookup the "best matching" flag
+        -- set, not require an exact match.
+        Nothing -> fail "Unsupported ABI version"
+        Just flags -> return flags
+
+    assertPermissionDenied act = handleJust permissionDenied return $ do
+        _ <- act
+        fail "Expected permission error"
+    permissionDenied e = if isPermissionError e then Just () else Nothing
+```
