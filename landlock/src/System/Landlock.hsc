@@ -1,5 +1,3 @@
-{-# LANGUAGE EmptyCase #-}
-{-# LANGUAGE EmptyDataDeriving #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
@@ -84,7 +82,19 @@ import System.IO.Error (ioeGetErrorType)
 import System.Posix.IO (closeFd)
 import System.Posix.Types (Fd)
 
-import System.Landlock.Flags (AccessFsFlag(..), accessFsFlagToBit, accessFsFlags, accessFsFlagIsReadOnly, toBits)
+import System.Landlock.Flags (
+      toBits
+    , AccessFsFlag(..)
+    , accessFsFlagToBit
+    , accessFsFlags
+    , accessFsFlagIsReadOnly
+    , CreateRulesetFlag
+    , createRulesetFlagToBit
+    , RestrictSelfFlag
+    , restrictSelfFlagToBit
+    , AddRuleFlag
+    , addRuleFlagToBit
+    )
 import System.Landlock.OpenPath (OpenPathFlags(..), defaultOpenPathFlags, withOpenPath, withOpenPathAt)
 import System.Landlock.Rules (Rule, ruleType, pathBeneath)
 import System.Landlock.Syscalls (LandlockRulesetAttr(..), landlock_create_ruleset, landlock_add_rule, landlock_restrict_self, prctl)
@@ -120,14 +130,6 @@ data RulesetAttr = RulesetAttr { rulesetAttrHandledAccessFs :: [AccessFsFlag]
                                }
   deriving (Show, Eq)
 
--- | Flags passed to @landlock_create_ruleset@.
---
--- In the current kernel API, only @LANDLOCK_CREATE_RULESET_VERSION@ is
--- defined, which should not be used when creating an actual Landlock
--- encironment (cf. 'landlock').
-data CreateRulesetFlag = CreateRulesetVersion
-  deriving (Show, Eq, Enum, Bounded)
-
 -- | Handle to a Landlock ruleset. Use 'addRule' to register new rules.
 newtype LandlockFd = LandlockFd { unLandlockFd :: Fd }
   deriving (Show, Eq)
@@ -138,21 +140,13 @@ createRuleset attr flags = with attr' $ \attrp -> wrap <$> landlock_create_rules
     wrap = LandlockFd . fromIntegral
     attr' = LandlockRulesetAttr { landlockRulesetAttrHandledAccessFs = handledAccessFs }
     handledAccessFs = toBits (rulesetAttrHandledAccessFs attr) accessFsFlagToBit
-    flags' = toBits flags $ \case
-       CreateRulesetVersion -> #{const LANDLOCK_CREATE_RULESET_VERSION}
-
--- | Flags passed to @landlock_restrict_self@.
---
--- In the current kernel API, no such flags are defined, hence this is a type
--- without any constructors.
-data RestrictSelfFlag
-  deriving (Show, Eq)
+    flags' = toBits flags createRulesetFlagToBit
 
 restrictSelf :: LandlockFd -> [RestrictSelfFlag] -> IO ()
 restrictSelf fd flags =
     void $ landlock_restrict_self (fromIntegral $ unLandlockFd fd) flags'
   where
-    flags' = toBits flags $ \case {}
+    flags' = toBits flags restrictSelfFlagToBit
 
 -- | Apply a Landlock sandbox to the current process.
 --
@@ -192,13 +186,6 @@ landlock attr createRulesetFlags restrictSelfFlags act =
             restrictSelf fd restrictSelfFlags
         return res
 
--- | Flags passed to @landlock_add_rule@.
---
--- In the current kernel API, no such flags are defined, hence this is a type
--- without any constructors.
-data AddRuleFlag
-  deriving (Show, Eq)
-
 -- | Register a new 'Rule' with a Landlock instance.
 addRule :: (MonadIO m, Storable (Rule a))
         => LandlockFd
@@ -212,7 +199,7 @@ addRule :: (MonadIO m, Storable (Rule a))
 addRule fd rule flags = liftIO $ with rule $ \ruleAttrp ->
     void $ landlock_add_rule (fromIntegral $ unLandlockFd fd) (ruleType rule) ruleAttrp flags'
   where
-    flags' = toBits flags $ \case {}
+    flags' = toBits flags addRuleFlagToBit
 
 -- |
 -- $example

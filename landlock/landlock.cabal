@@ -52,9 +52,7 @@ Library
   Build-Tool-Depends:  hsc2hs:hsc2hs
   Hs-Source-Dirs:      src
   Default-Language:    Haskell2010
-  Other-Extensions:    EmptyCase
-                       EmptyDataDeriving
-                       FlexibleContexts
+  Other-Extensions:    FlexibleContexts
                        LambdaCase
                        RankNTypes
   Ghc-Options:         -Wall
@@ -76,6 +74,8 @@ Library landlock-internal
   Hs-Source-Dirs:      internal
   Default-Language:    Haskell2010
   Other-Extensions:    DataKinds
+                       EmptyCase
+                       EmptyDataDeriving
                        FlexibleInstances
                        GADTs
                        KindSignatures
@@ -94,7 +94,7 @@ Test-Suite landlock-test
                      , async ^>=2.2.3
                      , filepath ^>=1.4.2.1
                      , process ^>=1.6.9.0
-                     , QuickCheck ^>=2.14.2
+                     , quickcheck-classes-base ^>=0.6.2.0
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
                      , tasty-quickcheck ^>=0.10.1.2
@@ -102,7 +102,6 @@ Test-Suite landlock-test
   Other-Extensions:    DataKinds
                        FlexibleInstances
                        LambdaCase
-                       ScopedTypeVariables
                        TypeApplications
   Ghc-Options:         -Wall
 
