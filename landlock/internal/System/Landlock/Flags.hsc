@@ -17,7 +17,7 @@ module System.Landlock.Flags (
     , addRuleFlagToBit
     ) where
 
-#include <linux/landlock.h>
+#include "linux/landlock.h"
 
 import Data.Bits (Bits, (.|.), (.&.))
 

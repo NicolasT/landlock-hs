@@ -13,8 +13,9 @@ module System.Landlock.Rules (
     , AccessFsFlag(..)
     ) where
 
-#include <linux/landlock.h>
 #include <sys/types.h>
+
+#include "linux/landlock.h"
 
 import Data.Int (Int32)
 import Data.Word (Word32, Word64)

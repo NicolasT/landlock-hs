@@ -32,6 +32,7 @@ Extra-Source-Files:
   CHANGELOG.md
   README.md
   cbits/hs-landlock.h
+  cbits/linux/landlock.h
 
 Tested-With:         GHC ==8.10.5
                    , GHC ==9.0.2
