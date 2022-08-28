@@ -1,6 +1,6 @@
 # Revision history for landlock
 
-## 0.2.0.2 -- YYYY-mm-dd
+## 0.2.1.0 -- YYYY-mm-dd
 
 ## 0.2.0.1 -- 2022-08-24
 
