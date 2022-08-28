@@ -146,7 +146,7 @@ createRulesetFlagToBit = \case
 data RestrictSelfFlag
   deriving (Show, Eq)
 
-restrictSelfFlagToBit :: Num a => RestrictSelfFlag -> a
+restrictSelfFlagToBit :: RestrictSelfFlag -> a
 restrictSelfFlagToBit = \case {}
 
 -- | Flags passed to @landlock_add_rule@.
@@ -156,5 +156,5 @@ restrictSelfFlagToBit = \case {}
 data AddRuleFlag
   deriving (Show, Eq)
 
-addRuleFlagToBit :: Num a => AddRuleFlag -> a
+addRuleFlagToBit :: AddRuleFlag -> a
 addRuleFlagToBit = \case {}

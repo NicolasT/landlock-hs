@@ -1,2 +1,26 @@
 Packages: landlock
           psx
+
+Package landlock
+  Ghc-Options: -Werror
+               -Wall
+               -Wincomplete-uni-patterns
+               -Wincomplete-record-updates
+               -Wpartial-fields
+               -Wmissing-home-modules
+               -Widentities
+               -Wredundant-constraints
+               -Wcpp-undef
+               -Wmissing-export-lists
+
+Package psx
+  Ghc-Options: -Werror
+               -Wall
+               -Wincomplete-uni-patterns
+               -Wincomplete-record-updates
+               -Wpartial-fields
+               -Wmissing-home-modules
+               -Widentities
+               -Wredundant-constraints
+               -Wcpp-undef
+               -Wmissing-export-lists
