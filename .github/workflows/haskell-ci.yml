@@ -164,11 +164,27 @@ jobs:
             ghc-options:
               -Werror
               -Wall
+              -Wincomplete-uni-patterns
+              -Wincomplete-record-updates
+              -Wpartial-fields
+              -Wmissing-home-modules
+              -Widentities
+              -Wredundant-constraints
+              -Wcpp-undef
+              -Wmissing-export-lists
 
           package psx
             ghc-options:
               -Werror
               -Wall
+              -Wincomplete-uni-patterns
+              -Wincomplete-record-updates
+              -Wpartial-fields
+              -Wmissing-home-modules
+              -Widentities
+              -Wredundant-constraints
+              -Wcpp-undef
+              -Wmissing-export-lists
           EOF
           $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: $_ installed\n" unless /^(landlock|psx)$/; }' >> cabal.project.local
           cat cabal.project
