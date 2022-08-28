@@ -1,6 +1,7 @@
 module System.Landlock.Version (
       Version(..)
     , version1
+    , version2
     ) where
 
 import Data.Int (Int64)
@@ -13,3 +14,7 @@ newtype Version = Version { getVersion :: #{type long} }
 -- | ABI version 1.
 version1 :: Version
 version1 = Version 1
+
+-- | ABI version 2.
+version2 :: Version
+version2 = Version 2

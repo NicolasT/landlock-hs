@@ -5,6 +5,8 @@
 * Use vendored `linux/landlock.h` instead of system-provided header during
   build.
 
+* Support Landlock ABI v2 and `LANDLOCK_ACCESS_FS_REFER` as part of it.
+
 ## 0.2.0.1 -- 2022-08-24
 
 * Code-wise the same as version 0.2.0.0, but said version was incorrectly
