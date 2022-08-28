@@ -29,7 +29,7 @@ import Test.QuickCheck.Classes.Base (
     , storableLaws
     )
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Test.Tasty.HUnit ((@?), (@=?), (@?=), assertBool, testCase, testCaseSteps)
+import Test.Tasty.HUnit ((@?), (@=?), (@?=), assertBool, assertFailure, testCase, testCaseSteps)
 import Test.Tasty.QuickCheck (Arbitrary(..), arbitraryBoundedEnum, testProperty)
 
 import System.Landlock (
@@ -190,7 +190,9 @@ testAllV1Restrictions = do
     try (\_ -> return ())
 
     -- Then, sandbox and try again
-    let Just v1Restrictions = lookup version1 accessFsFlags
+    v1Restrictions <- case lookup version1 accessFsFlags of
+        Nothing -> assertFailure $ "Unknown ABI version: " ++ show version1
+        Just r -> return r
     landlock (RulesetAttr v1Restrictions) [] [] $ \_ -> return ()
     catchPermissionDenied $ try $ \_ -> fail $ "Still able to open " ++ fn
 
@@ -199,7 +201,9 @@ testRestrictReadExceptEtc = do
     let dir = "/etc"
         file = dir </> "passwd"
         act = withFile file ReadMode $ \_ -> return ()
-        Just v1Restrictions = lookup version1 accessFsFlags
+    v1Restrictions <- case lookup version1 accessFsFlags of
+        Nothing -> assertFailure $ "Unknown ABI version: " ++ show version1
+        Just r -> return r
 
     act
 
