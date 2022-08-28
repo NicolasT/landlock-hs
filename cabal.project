@@ -2,7 +2,9 @@ Packages: landlock
           psx
 
 Package landlock
-  Ghc-Options: -Wall
+  Ghc-Options: -Werror
+               -Wall
 
 Package psx
-  Ghc-Options: -Wall
+  Ghc-Options: -Werror
+               -Wall
