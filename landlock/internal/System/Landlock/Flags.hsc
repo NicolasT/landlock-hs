@@ -17,11 +17,11 @@ module System.Landlock.Flags (
     , addRuleFlagToBit
     ) where
 
-#include <linux/landlock.h>
+#include "linux/landlock.h"
 
 import Data.Bits (Bits, (.|.), (.&.))
 
-import System.Landlock.Version (Version, version1)
+import System.Landlock.Version (Version, version1, version2)
 
 -- | Fold a set of flags into a bitset/number.
 toBits :: (Num b, Bits b, Foldable f) => f a -> (a -> b) -> b
@@ -79,6 +79,22 @@ data AccessFsFlag = AccessFsExecute     -- ^ Execute a file.
                   | AccessFsMakeFifo    -- ^ Create (or rename or link) a named pipe.
                   | AccessFsMakeBlock   -- ^ Create (or rename or link) a block device.
                   | AccessFsMakeSym     -- ^ Create (or rename or link) a symbolic link.
+                  | AccessFsRefer       -- ^ Link or rename a file from or to a different
+                                        --   directory (i.e. reparent a file hierarchy).  This access right is
+                                        --   available since the second version of the Landlock ABI.  This is also the
+                                        --   only access right which is always considered handled by any ruleset in
+                                        --   such a way that reparenting a file hierarchy is always denied by default.
+                                        --   To avoid privilege escalation, it is not enough to add a rule with this
+                                        --   access right.  When linking or renaming a file, the destination directory
+                                        --   hierarchy must also always have the same or a superset of restrictions of
+                                        --   the source hierarchy.  If it is not the case, or if the domain doesn't
+                                        --   handle this access right, such actions are denied by default with errno
+                                        --   set to EXDEV.  Linking also requires a LANDLOCK_ACCESS_FS_MAKE_* access
+                                        --   right on the destination directory, and renaming also requires a
+                                        --   LANDLOCK_ACCESS_FS_REMOVE_* access right on the source's (file or
+                                        --   directory) parent.  Otherwise, such actions are denied with errno set to
+                                        --   EACCES.  The EACCES errno prevails over EXDEV to let user space
+                                        --   efficiently deal with an unrecoverable error.
 
 -- Note: when adding new flags, this likely means a new ABI version is
 -- available. Hence, add this to 'System.Landlock.Version' (and export it
@@ -102,11 +118,13 @@ accessFsFlagToBit = \case
     AccessFsMakeFifo -> #{const LANDLOCK_ACCESS_FS_MAKE_FIFO}
     AccessFsMakeBlock -> #{const LANDLOCK_ACCESS_FS_MAKE_BLOCK}
     AccessFsMakeSym -> #{const LANDLOCK_ACCESS_FS_MAKE_SYM}
+    AccessFsRefer -> #{const LANDLOCK_ACCESS_FS_REFER}
 
 -- | All 'AccessFsFlag' flags keyed by a Landlock ABI 'Version'.
 accessFsFlags :: [(Version, [AccessFsFlag])]
 accessFsFlags = [
       (version1, [AccessFsExecute .. AccessFsMakeSym])
+    , (version2, [AccessFsExecute .. AccessFsRefer])
     ]
 
 -- | Predicate for read-only 'AccessFsFlag' flags.
@@ -125,6 +143,7 @@ accessFsFlagIsReadOnly = \case
     AccessFsMakeFifo -> False
     AccessFsMakeBlock -> False
     AccessFsMakeSym -> False
+    AccessFsRefer -> False
 
 
 -- | Flags passed to @landlock_create_ruleset@.

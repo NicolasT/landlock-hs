@@ -53,6 +53,7 @@ module System.Landlock (
     , abiVersion
     , Version
     , version1
+    , version2
     -- ** Opening paths using @O_PATH@
     --
     -- | When creating a 'pathBeneath' rule, a file descriptor to a directory
@@ -99,7 +100,7 @@ import System.Landlock.Syscalls (
     , prctl
     , pR_SET_NO_NEW_PRIVS
     )
-import System.Landlock.Version (Version(..), version1)
+import System.Landlock.Version (Version(..), version1, version2)
 
 -- | Retrieve the Landlock ABI version of the running system.
 --

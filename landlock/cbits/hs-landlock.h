@@ -2,8 +2,9 @@
 #define _HS_LANDLOCK_H_
 
 #include <stddef.h>
-#include <linux/landlock.h>
 #include <sys/types.h>
+
+#include "linux/landlock.h"
 
 #ifdef __cplusplus
 extern "C" {

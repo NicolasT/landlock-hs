@@ -8,11 +8,11 @@ module System.Landlock.Syscalls (
     ) where
 
 #include <stddef.h>
-#include <linux/landlock.h>
 #include <sys/prctl.h>
 #include <sys/types.h>
 
 #include "hs-landlock.h"
+#include "linux/landlock.h"
 
 import Data.Int (Int32, Int64)
 import Data.Word (Word32, Word64)

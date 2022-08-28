@@ -1,6 +1,11 @@
 # Revision history for landlock
 
-## 0.2.0.2 -- YYYY-mm-dd
+## 0.2.1.0 -- YYYY-mm-dd
+
+* Use vendored `linux/landlock.h` instead of system-provided header during
+  build.
+
+* Support Landlock ABI v2 and `LANDLOCK_ACCESS_FS_REFER` as part of it.
 
 ## 0.2.0.1 -- 2022-08-24
 

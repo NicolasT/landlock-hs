@@ -2,13 +2,13 @@
 
 #include <stddef.h>
 #include <unistd.h>
-#include <linux/landlock.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 
 #include <hs-psx.h>
 
 #include "hs-landlock.h"
+#include "linux/landlock.h"
 
 #ifndef landlock_create_ruleset
 long landlock_create_ruleset(const struct landlock_ruleset_attr *const attr,
