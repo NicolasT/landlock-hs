@@ -1,1 +1,2 @@
 Github-Patches: .github/workflows/haskell-ci.patch
+Copy-Fields: all

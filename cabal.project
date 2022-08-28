@@ -1,2 +1,8 @@
 Packages: landlock
           psx
+
+Package landlock
+  Ghc-Options: -Wall
+
+Package psx
+  Ghc-Options: -Wall
