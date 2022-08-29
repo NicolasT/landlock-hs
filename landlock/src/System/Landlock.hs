@@ -52,6 +52,7 @@ module System.Landlock (
     -- | Retrieve and handle the kernel's Landlock ABI version.
     , abiVersion
     , Version
+    , getVersion
     , version1
     , version2
     -- ** Opening paths using @O_PATH@
