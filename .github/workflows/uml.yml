@@ -18,7 +18,7 @@ jobs:
       - name: Download Linux kernel sources
         run: |
           wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-${{ matrix.linux }}.tar.xz
-          tar xvf linux-${{ matrix.linux }}.tar.xz
+          tar xf linux-${{ matrix.linux }}.tar.xz
           cd linux-${{ matrix.linux }}
-          make tinyconfig ARCH=um
-          make -j2 linux ARCH=um
+          make tinyconfig ARCH=um SUBARCH=x86_64
+          make -j2 linux ARCH=um SUBARCH=x86_64
