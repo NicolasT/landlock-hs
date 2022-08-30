@@ -24,11 +24,12 @@ jobs:
           wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-${{ matrix.linux }}.tar.xz
           tar xf linux-${{ matrix.linux }}.tar.xz
       - name: Patch Linux kernel sources
+        working-directory: linux-${{ matrix.linux }}
         run: |
           sed -i '/ARCH_EPHEMERAL_INODES/d' arch/um/Kconfig
       - name: Configure Linux kernel
+        working-directory: linux-${{ matrix.linux }}
         run: |
-          cd linux-${{ matrix.linux }}
           make tinyconfig
           echo "CONFIG_UID16=y" >> .config
           echo "CONFIG_MULTIUSER=y" >> .config
@@ -39,5 +40,6 @@ jobs:
           echo "CONFIG_SECURITY_LANDLOCK=y" >> .config
           make olddefconfig
       - name: Build Linux kernel
+        working-directory: linux-${{ matrix.linux }}
         run: |
           make -j2 linux
