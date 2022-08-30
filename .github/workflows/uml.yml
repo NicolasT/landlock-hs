@@ -14,11 +14,30 @@ jobs:
           - 5.13
           - 5.19
 
+    env:
+      ARCH: um
+      SUBARCH: x86_64
+
     steps:
-      - name: Download Linux kernel sources
+      - name: Download and unpack Linux kernel sources
         run: |
           wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-${{ matrix.linux }}.tar.xz
           tar xf linux-${{ matrix.linux }}.tar.xz
+      - name: Patch Linux kernel sources
+        run: |
+          sed -i '/ARCH_EPHEMERAL_INODES/d' arch/um/Kconfig
+      - name: Configure Linux kernel
+        run: |
           cd linux-${{ matrix.linux }}
-          make tinyconfig ARCH=um SUBARCH=x86_64
-          make -j2 linux ARCH=um SUBARCH=x86_64
+          make tinyconfig
+          echo "CONFIG_UID16=y" >> .config
+          echo "CONFIG_MULTIUSER=y" >> .config
+          echo "CONFIG_KERNFS=y" >> .config
+          echo "CONFIG_SYSFS=y" >> .config
+          echo "CONFIG_SECURITY=y" >> .config
+          echo "CONFIG_SECURITY_PATH=y" >> .config
+          echo "CONFIG_SECURITY_LANDLOCK=y" >> .config
+          make olddefconfig
+      - name: Build Linux kernel
+        run: |
+          make -j2 linux
