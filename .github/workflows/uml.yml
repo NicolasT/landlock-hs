@@ -14,10 +14,6 @@ jobs:
           - 5.13
           - 5.19
 
-    env:
-      ARCH: um
-      SUBARCH: x86_64
-
     steps:
       - name: Download and unpack Linux kernel sources
         run: |
@@ -30,7 +26,7 @@ jobs:
       - name: Configure Linux kernel
         working-directory: linux-${{ matrix.linux }}
         run: |
-          make tinyconfig
+          make tinyconfig ARCH=um SUBARCH=x86_64
           echo "CONFIG_UID16=y" >> .config
           echo "CONFIG_MULTIUSER=y" >> .config
           echo "CONFIG_KERNFS=y" >> .config
@@ -38,8 +34,8 @@ jobs:
           echo "CONFIG_SECURITY=y" >> .config
           echo "CONFIG_SECURITY_PATH=y" >> .config
           echo "CONFIG_SECURITY_LANDLOCK=y" >> .config
-          make olddefconfig
+          make olddefconfig ARCH=um SUBARCH=x86_64
       - name: Build Linux kernel
         working-directory: linux-${{ matrix.linux }}
         run: |
-          make -j2 linux
+          make -j2 linux ARCH=um SUBARCH=x86_64
