@@ -1,0 +1,24 @@
+---
+name: UML
+on:
+  - push
+  - pull_request
+
+jobs:
+  build-uml:
+    name: Build UML
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        linux:
+          - 5.13
+          - 5.19
+
+    steps:
+      - name: Download Linux kernel sources
+        run: |
+          wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-${{ matrix.linux }}.tar.xz
+          tar xvf linux-${{ matrix.linux }}.tar.xz
+          cd linux-${{ matrix.linux }}
+          make tinyconfig ARCH=um
+          make -j2 linux ARCH=um
