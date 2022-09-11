@@ -1,2 +1,12 @@
 Github-Patches: .github/workflows/haskell-ci.patch
 Copy-Fields: all
+
+Constraint-Set unix-2.7
+  Constraints: unix ^>=2.7
+  Tests:       True
+  Run-Tests:   True
+
+Constraint-Set unix-2.8
+  Constraints: unix ^>=2.8
+  Tests:       True
+  Run-Tests:   True
