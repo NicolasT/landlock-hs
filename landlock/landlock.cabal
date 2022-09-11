@@ -33,6 +33,8 @@ Extra-Source-Files:
   README.md
   cbits/hs-landlock.h
   cbits/linux/landlock.h
+  cbits/linux/GPL-2.0
+  cbits/linux/Linux-syscall-note
 
 Tested-With:         GHC ==8.10.5
                    , GHC ==9.0.2
