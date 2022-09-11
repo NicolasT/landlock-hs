@@ -6,7 +6,7 @@ index 5147875..614cc9c 100644
  jobs:
    linux:
      name: Haskell-CI - Linux - ${{ matrix.compiler }}
--    runs-on: ubuntu-18.04
+-    runs-on: ubuntu-20.04
 +    runs-on: ubuntu-22.04
      timeout-minutes:
        60
