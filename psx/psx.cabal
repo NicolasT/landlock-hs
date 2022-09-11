@@ -2,7 +2,7 @@ Cabal-Version:       2.2
 Build-Type:          Simple
 
 Name:                psx
-Version:             0.1.0.1
+Version:             0.1.1.0
 Synopsis:            Integrate libpsx with the GHC RTS
 Description:
   This library embeds @libpsx@ in a GHC Haskell-compiled application.
@@ -38,6 +38,7 @@ Extra-Source-Files:
 Tested-With:         GHC ==8.10.5
                    , GHC ==9.0.2
                    , GHC ==9.2.2
+                   , GHC ==9.4.2
 
 Source-Repository head
   Type:                git
@@ -60,7 +61,7 @@ Library
   -- restrict compatibility with said GHC version(s).
   Exposed-Modules:     System.PSX
   Hs-Source-Dirs:      src
-  Build-Depends:       base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16
+  Build-Depends:       base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
   Include-Dirs:        cbits
   Install-Includes:    hs-psx.h
   C-Sources:           cbits/hs-psx.c
