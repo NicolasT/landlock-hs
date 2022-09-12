@@ -110,7 +110,7 @@ import System.Landlock.Version (Version(..), version1, version2)
 abiVersion :: IO Version
 abiVersion = Version <$> landlock_create_ruleset nullPtr 0 flags
   where
-    flags = toBits [CreateRulesetVersion] createRulesetFlagToBit
+    flags = toBits createRulesetFlagToBit [CreateRulesetVersion]
 
 -- | Check whether Landlock is supported and enabled on the running system.
 isSupported :: IO Bool
@@ -144,14 +144,14 @@ createRuleset attr flags = with attr' $ \attrp -> wrap <$> landlock_create_rules
   where
     wrap = LandlockFd . fromIntegral
     attr' = LandlockRulesetAttr { landlockRulesetAttrHandledAccessFs = handledAccessFs }
-    handledAccessFs = toBits (rulesetAttrHandledAccessFs attr) accessFsFlagToBit
-    flags' = toBits flags createRulesetFlagToBit
+    handledAccessFs = toBits accessFsFlagToBit (rulesetAttrHandledAccessFs attr)
+    flags' = toBits createRulesetFlagToBit flags
 
 restrictSelf :: LandlockFd -> [RestrictSelfFlag] -> IO ()
 restrictSelf fd flags =
     void $ landlock_restrict_self (fromIntegral $ unLandlockFd fd) flags'
   where
-    flags' = toBits flags restrictSelfFlagToBit
+    flags' = toBits restrictSelfFlagToBit flags
 
 -- | Apply a Landlock sandbox to the current process.
 --
@@ -204,7 +204,7 @@ addRule :: (MonadIO m, Storable (Rule a))
 addRule fd rule flags = liftIO $ with rule $ \ruleAttrp ->
     void $ landlock_add_rule (fromIntegral $ unLandlockFd fd) (ruleType rule) ruleAttrp flags'
   where
-    flags' = toBits flags addRuleFlagToBit
+    flags' = toBits addRuleFlagToBit flags
 
 -- |
 -- $example
