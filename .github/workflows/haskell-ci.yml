@@ -165,6 +165,8 @@ jobs:
           echo "package psx" >> cabal.project
           echo "    ghc-options: -Werror=missing-methods" >> cabal.project
           cat >> cabal.project <<EOF
+          allow-newer: process-1.6.15.0:unix
+
           package landlock
             ghc-options:
               -Werror
@@ -230,3 +232,16 @@ jobs:
         run: |
           rm -f cabal.project.local
           $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks all
+      - name: prepare for constraint sets
+        run: |
+          rm -f cabal.project.local
+      - name: constraint set unix-2.8
+        run: |
+          $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.8' --dependencies-only -j2 all
+          $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.8' all
+          $CABAL v2-test $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.8' all
+      - name: constraint set unix-2.7
+        run: |
+          $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.7' --dependencies-only -j2 all
+          $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.7' all
+          $CABAL v2-test $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.7' all

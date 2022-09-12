@@ -9,6 +9,8 @@
 
 * Support GHC 9.4.2 / `base ^>=4.17`.
 
+* Support `unix ^>=2.8`.
+
 ## 0.2.0.1 -- 2022-08-24
 
 * Code-wise the same as version 0.2.0.0, but said version was incorrectly
