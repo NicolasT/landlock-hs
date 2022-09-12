@@ -1,5 +1,9 @@
 Github-Patches: .github/workflows/haskell-ci.patch
-Copy-Fields: all
+Copy-Fields: some
+
+Local-Ghc-Options:
+  -Werror
+  -optc=-Werror
 
 Constraint-Set unix-2.7
   Constraints: unix ^>=2.7
