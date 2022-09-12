@@ -7,7 +7,8 @@ module System.Landlock.Version (
 import Data.Int (Int64)
 
 -- | Representation of a Landlock ABI version as reported by the kernel.
-newtype Version = Version { getVersion :: #{type long} }
+newtype Version = Version { getVersion :: #{type long}  -- ^ Get the numerical version.
+                          }
   deriving (Show, Eq, Ord)
 
 -- All ABI versions supported by this library should be exposed as a value.

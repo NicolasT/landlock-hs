@@ -83,6 +83,18 @@ Library landlock-internal
                        LambdaCase
                        StandaloneDeriving
 
+Executable landlocked
+  Main-Is:             landlocked.hs
+  Other-Modules:       Paths_landlock
+  Autogen-Modules:     Paths_landlock
+  Hs-Source-Dirs:      bin
+  Build-Depends:       landlock
+                     , base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
+                     , exceptions ^>=0.10.4
+                     , optparse-applicative ^>=0.16.1.0
+                     , unix ^>=2.7.2.2 || ^>=2.8
+  Default-Language:    Haskell2010
+
 Test-Suite landlock-test
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
@@ -132,3 +144,16 @@ Test-Suite landlock-readme
   Build-Tool-Depends:  markdown-unlit:markdown-unlit
   Default-Language:    Haskell2010
   Ghc-Options:         -pgmL markdown-unlit
+
+Test-Suite landlocked-test
+  Type:                exitcode-stdio-1.0
+  Hs-Source-Dirs:      test
+  Main-Is:             landlocked-test.hs
+  Build-Depends:       base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
+                     , filepath ^>=1.4.2.1
+                     , process ^>=1.6.9.0
+                     , tasty ^>=1.4.1
+                     , tasty-hunit ^>=0.10.0.3
+                     , temporary ^>=1.3
+  Build-Tool-Depends:  landlock:landlocked
+  Default-Language:    Haskell2010
