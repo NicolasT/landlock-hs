@@ -47,18 +47,36 @@ Source-Repository head
   Subdir:              landlock
   Branch:              main
 
+Common common-settings
+  Default-Language:    Haskell2010
+  Ghc-Options:
+    -Wall
+    -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+    -Wpartial-fields
+    -Wmissing-home-modules
+    -Widentities
+    -Wredundant-constraints
+    -Wcpp-undef
+    -Wmissing-export-lists
+  Cc-Options:
+    -Wall
+    -Wextra
+    -pedantic
+
 Library
+  Import:              common-settings
   Exposed-Modules:     System.Landlock
   Build-Depends:       landlock-internal
                      , base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
                      , exceptions ^>=0.10.4
                      , unix ^>=2.7.2.2 || ^>=2.8
   Hs-Source-Dirs:      src
-  Default-Language:    Haskell2010
   Other-Extensions:    FlexibleContexts
                        RankNTypes
 
 Library landlock-internal
+  Import:              common-settings
   Exposed-Modules:     System.Landlock.Flags
                      , System.Landlock.OpenPath
                      , System.Landlock.Rules
@@ -66,14 +84,12 @@ Library landlock-internal
                      , System.Landlock.Version
   Include-Dirs:        cbits
   C-Sources:           cbits/hs-landlock.c
-  Cc-Options:          -Wall
   Build-Depends:       psx ^>=0.1
                      , base
                      , exceptions
                      , unix
   Build-Tool-Depends:  hsc2hs:hsc2hs
   Hs-Source-Dirs:      internal
-  Default-Language:    Haskell2010
   Other-Extensions:    DataKinds
                        EmptyCase
                        EmptyDataDeriving
@@ -84,6 +100,7 @@ Library landlock-internal
                        StandaloneDeriving
 
 Executable landlocked
+  Import:              common-settings
   Main-Is:             landlocked.hs
   Other-Modules:       Paths_landlock
   Autogen-Modules:     Paths_landlock
@@ -93,9 +110,9 @@ Executable landlocked
                      , exceptions ^>=0.10.4
                      , optparse-applicative ^>=0.16.1.0
                      , unix ^>=2.7.2.2 || ^>=2.8
-  Default-Language:    Haskell2010
 
 Test-Suite landlock-test
+  Import:              common-settings
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
   Main-Is:             landlock-test.hs
@@ -110,13 +127,13 @@ Test-Suite landlock-test
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
                      , tasty-quickcheck ^>=0.10.1.2
-  Default-Language:    Haskell2010
   Other-Extensions:    DataKinds
                        FlexibleInstances
                        LambdaCase
                        TypeApplications
 
 Test-Suite landlock-test-threaded
+  Import:              common-settings
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
   Main-Is:             landlock-test-threaded.hs
@@ -126,10 +143,10 @@ Test-Suite landlock-test-threaded
                      , async ^>=2.2.3
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
-  Default-Language:    Haskell2010
   Ghc-Options:         -threaded -with-rtsopts -N2
 
 Test-Suite landlock-readme
+  Import:              common-settings
   Type:                exitcode-stdio-1.0
   Main-Is:             README.lhs
   Other-Modules:       ReadmeUtils
@@ -142,10 +159,10 @@ Test-Suite landlock-readme
                      , process ^>=1.6.9.0
                      , temporary ^>=1.3
   Build-Tool-Depends:  markdown-unlit:markdown-unlit
-  Default-Language:    Haskell2010
   Ghc-Options:         -pgmL markdown-unlit
 
 Test-Suite landlocked-test
+  Import:              common-settings
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
   Main-Is:             landlocked-test.hs
@@ -156,4 +173,3 @@ Test-Suite landlocked-test
                      , tasty-hunit ^>=0.10.0.3
                      , temporary ^>=1.3
   Build-Tool-Depends:  landlock:landlocked
-  Default-Language:    Haskell2010

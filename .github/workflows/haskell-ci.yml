@@ -168,30 +168,10 @@ jobs:
           allow-newer: process-1.6.15.0:unix
 
           package landlock
-            ghc-options:
-              -Werror
-              -Wall
-              -Wincomplete-uni-patterns
-              -Wincomplete-record-updates
-              -Wpartial-fields
-              -Wmissing-home-modules
-              -Widentities
-              -Wredundant-constraints
-              -Wcpp-undef
-              -Wmissing-export-lists
+            ghc-options: -Werror -optc=-Werror
 
           package psx
-            ghc-options:
-              -Werror
-              -Wall
-              -Wincomplete-uni-patterns
-              -Wincomplete-record-updates
-              -Wpartial-fields
-              -Wmissing-home-modules
-              -Widentities
-              -Wredundant-constraints
-              -Wcpp-undef
-              -Wmissing-export-lists
+            ghc-options: -Werror -optc=-Werror
           EOF
           $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: $_ installed\n" unless /^(landlock|psx)$/; }' >> cabal.project.local
           cat cabal.project

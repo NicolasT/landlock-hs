@@ -51,7 +51,25 @@ Flag bundled-libpsx
   Default:             True
   Manual:              True
 
+Common common-settings
+  Default-Language:    Haskell2010
+  Ghc-Options:
+    -Wall
+    -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+    -Wpartial-fields
+    -Wmissing-home-modules
+    -Widentities
+    -Wredundant-constraints
+    -Wcpp-undef
+    -Wmissing-export-lists
+  Cc-Options:
+    -Wall
+    -Wextra
+    -pedantic
+
 Library
+  Import: common-settings
   -- Despite this library not containing any Haskell code, and
   -- hence not really having any dependency on `base`, it is
   -- only *tested* on particular GHC versions (which we can tie
@@ -65,9 +83,7 @@ Library
   Include-Dirs:        cbits
   Install-Includes:    hs-psx.h
   C-Sources:           cbits/hs-psx.c
-  Cc-Options:          -Wall
   Ld-Options:          -Wl,-wrap,sigfillset -Wl,-undefined,__wrap_sigfillset
-  Default-Language:    Haskell2010
   if flag(bundled-libpsx)
     C-Sources:         cbits/psx/psx.c
     Cc-Options:        -DBUNDLED_LIBPSX
@@ -76,6 +92,7 @@ Library
     Pkgconfig-Depends: libpsx
 
 Test-Suite psx-test-threaded
+  Import:              common-settings
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
   Main-Is:             psx-test-threaded.hs
@@ -87,10 +104,10 @@ Test-Suite psx-test-threaded
                      , async ^>=2.2.3
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
-  Default-Language:    Haskell2010
   Ghc-Options:         -threaded -with-rtsopts -N2
 
 Test-Suite psx-test
+  Import:              common-settings
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
   Main-Is:             psx-test.hs
@@ -102,9 +119,9 @@ Test-Suite psx-test
                      , async ^>=2.2.3
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
-  Default-Language:    Haskell2010
 
 Test-Suite psx-test-no-psx
+  Import:              common-settings
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
   Main-Is:             psx-test-no-psx.hs
@@ -114,4 +131,3 @@ Test-Suite psx-test-no-psx
   Build-Depends:       base
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
-  Default-Language:    Haskell2010
