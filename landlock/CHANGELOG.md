@@ -14,6 +14,9 @@
 * Add a new executable,`landlocked`, which permits to run a command in
   a sandboxed environment.
 
+* Add a flag, `landlocked`, which allows to not build the `landlocked`
+  executable.
+
 ## 0.2.0.1 -- 2022-08-24
 
 * Code-wise the same as version 0.2.0.0, but said version was incorrectly
