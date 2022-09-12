@@ -1,3 +1,5 @@
+{-# LANGUAGE CApiFFI #-}
+
 module System.Landlock.OpenPath (
       withOpenPath
     , withOpenPathAt
@@ -18,7 +20,7 @@ import System.Posix.Error (throwErrnoPathIfMinus1Retry)
 import System.Posix.IO (closeFd)
 import System.Posix.Types (Fd)
 
-foreign import ccall unsafe "fcntl.h openat"
+foreign import capi unsafe "fcntl.h openat"
   _openat :: #{type int}
          -> CString
          -> #{type int}

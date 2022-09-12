@@ -1,3 +1,5 @@
+{-# LANGUAGE CApiFFI #-}
+
 module TestCases (
       psxSyscall3Works
     , psxSyscall6Works
@@ -25,14 +27,14 @@ import Foreign.Storable (Storable(..))
 import Test.Tasty (TestTree)
 import Test.Tasty.HUnit ((@?=), assertBool, testCase, testCaseSteps)
 
-foreign import ccall unsafe "hs-psx.h hs_psx_syscall3"
+foreign import capi unsafe "hs-psx.h hs_psx_syscall3"
     psxSyscall3 :: #{type long}
                 -> #{type long}
                 -> #{type long}
                 -> #{type long}
                 -> IO #{type long}
 
-foreign import ccall unsafe "hs-psx.h hs_psx_syscall6"
+foreign import capi unsafe "hs-psx.h hs_psx_syscall6"
     psxSyscall6 :: #{type long}
                 -> #{type long}
                 -> #{type long}
@@ -42,13 +44,13 @@ foreign import ccall unsafe "hs-psx.h hs_psx_syscall6"
                 -> #{type long}
                 -> IO #{type long}
 
-foreign import ccall unsafe "unistd.h getpid"
+foreign import capi unsafe "unistd.h getpid"
     c_getpid :: IO #{type pid_t}
 
 getpid :: IO #{type pid_t}
 getpid = throwErrnoIfMinus1 "getpid" c_getpid
 
-foreign import ccall unsafe "unistd.h gettid"
+foreign import capi unsafe "unistd.h gettid"
     c_gettid :: IO #{type pid_t}
 
 gettid :: IO #{type pid_t}
@@ -66,7 +68,7 @@ psxSyscall6Works = testCase "hs_psx_syscall6 works" $ do
     void $ throwErrnoIfMinus1 "prctl" $ psxSyscall6 #{const __NR_prctl} #{const PR_GET_NO_NEW_PRIVS} 0 0 0 0 0
 
 
-foreign import ccall unsafe "sys/prctl.h prctl"
+foreign import capi unsafe "sys/prctl.h prctl"
     _prctl :: #{type int}
            -> #{type unsigned long}
            -> #{type unsigned long}
@@ -147,10 +149,10 @@ instance Storable SigsetT where
     peek _ = error "peek not implemented"
     poke _ _ = error "poke not implemented"
 
-foreign import ccall unsafe "signal.h sigfillset"
+foreign import capi unsafe "signal.h sigfillset"
     sigfillset :: Ptr SigsetT -> IO #{type int}
 
-foreign import ccall unsafe "signal.h sigismember"
+foreign import capi unsafe "signal.h sigismember"
     sigismember :: Ptr SigsetT -> #{type int} -> IO #{type int}
 
 sigfillsetWrapped :: TestTree
@@ -160,7 +162,7 @@ sigfillsetWrapped = testCase "sigfillset is wrapped" $ alloca $ \set -> do
     isMember @?= 0
 
 
-foreign import ccall unsafe "detect-psx.h detect_psx"
+foreign import capi unsafe "detect-psx.h detect_psx"
     detectPsx :: IO #{type int}
 
 psxDetected :: TestTree
