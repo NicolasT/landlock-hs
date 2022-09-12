@@ -47,6 +47,11 @@ Source-Repository head
   Subdir:              landlock
   Branch:              main
 
+Flag landlocked
+  Description:         Build the landlocked utility.
+  Default:             True
+  Manual:              False
+
 Common common-settings
   Default-Language:    Haskell2010
   Ghc-Options:
@@ -102,6 +107,8 @@ Library landlock-internal
 
 Executable landlocked
   Import:              common-settings
+  if !flag(landlocked)
+    Buildable:         False
   Main-Is:             landlocked.hs
   Other-Modules:       Paths_landlock
   Autogen-Modules:     Paths_landlock
@@ -166,6 +173,8 @@ Test-Suite landlock-readme
 
 Test-Suite landlocked-test
   Import:              common-settings
+  if !flag(landlocked)
+    Buildable:         False
   Type:                exitcode-stdio-1.0
   Hs-Source-Dirs:      test
   Main-Is:             landlocked-test.hs
