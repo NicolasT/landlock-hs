@@ -24,12 +24,12 @@ import Data.Bits (Bits, (.|.), (.&.))
 import System.Landlock.Version (Version, version1, version2)
 
 -- | Fold a set of flags into a bitset/number.
-toBits :: (Num b, Bits b, Foldable f) => f a -> (a -> b) -> b
-toBits l f = foldr (\a b -> b .|. f a) 0 l
+toBits :: (Num b, Bits b, Foldable f) => (a -> b) -> f a -> b
+toBits f = foldr (\a b -> b .|. f a) 0
 
 -- | Expand a bitset/number into a set of flags.
-fromBits :: (Enum a, Bounded a, Num b, Bits b) => b -> (a -> b) -> [a]
-fromBits b f = filter (\a -> b .&. f a /= 0) [minBound .. maxBound]
+fromBits :: (Enum a, Bounded a, Num b, Bits b) => (a -> b) -> b -> [a]
+fromBits f b = filter (\a -> b .&. f a /= 0) [minBound .. maxBound]
 
 -- | Filesystem flags.
 --

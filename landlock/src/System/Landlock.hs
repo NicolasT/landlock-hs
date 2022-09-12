@@ -100,6 +100,7 @@ import System.Landlock.Syscalls (
     , landlock_restrict_self
     , prctl
     , pR_SET_NO_NEW_PRIVS
+    , throwIfNonZero
     )
 import System.Landlock.Version (Version(..), version1, version2)
 
@@ -110,7 +111,7 @@ import System.Landlock.Version (Version(..), version1, version2)
 abiVersion :: IO Version
 abiVersion = Version <$> landlock_create_ruleset nullPtr 0 flags
   where
-    flags = toBits [CreateRulesetVersion] createRulesetFlagToBit
+    flags = toBits createRulesetFlagToBit [CreateRulesetVersion]
 
 -- | Check whether Landlock is supported and enabled on the running system.
 isSupported :: IO Bool
@@ -144,14 +145,14 @@ createRuleset attr flags = with attr' $ \attrp -> wrap <$> landlock_create_rules
   where
     wrap = LandlockFd . fromIntegral
     attr' = LandlockRulesetAttr { landlockRulesetAttrHandledAccessFs = handledAccessFs }
-    handledAccessFs = toBits (rulesetAttrHandledAccessFs attr) accessFsFlagToBit
-    flags' = toBits flags createRulesetFlagToBit
+    handledAccessFs = toBits accessFsFlagToBit (rulesetAttrHandledAccessFs attr)
+    flags' = toBits createRulesetFlagToBit flags
 
 restrictSelf :: LandlockFd -> [RestrictSelfFlag] -> IO ()
 restrictSelf fd flags =
-    void $ landlock_restrict_self (fromIntegral $ unLandlockFd fd) flags'
+    landlock_restrict_self (fromIntegral $ unLandlockFd fd) flags'
   where
-    flags' = toBits flags restrictSelfFlagToBit
+    flags' = toBits restrictSelfFlagToBit flags
 
 -- | Apply a Landlock sandbox to the current process.
 --
@@ -187,7 +188,7 @@ landlock attr createRulesetFlags restrictSelfFlags act =
     bracket (liftIO $ createRuleset attr createRulesetFlags) (liftIO . closeFd . unLandlockFd) $ \fd -> do
         res <- act (addRule fd)
         liftIO $ do
-            void $ prctl pR_SET_NO_NEW_PRIVS 1 0 0 0
+            throwIfNonZero "prtcl" $ prctl pR_SET_NO_NEW_PRIVS 1 0 0 0
             restrictSelf fd restrictSelfFlags
         return res
 
@@ -202,9 +203,9 @@ addRule :: (MonadIO m, Storable (Rule a))
            --   list.
         -> m ()
 addRule fd rule flags = liftIO $ with rule $ \ruleAttrp ->
-    void $ landlock_add_rule (fromIntegral $ unLandlockFd fd) (ruleType rule) ruleAttrp flags'
+    landlock_add_rule (fromIntegral $ unLandlockFd fd) (ruleType rule) ruleAttrp flags'
   where
-    flags' = toBits flags addRuleFlagToBit
+    flags' = toBits addRuleFlagToBit flags
 
 -- |
 -- $example

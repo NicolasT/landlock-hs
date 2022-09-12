@@ -47,9 +47,9 @@ instance Storable (Rule 'PathBeneath) where
     peek ptr = do
         allowedAccess <- #{peek struct landlock_path_beneath_attr, allowed_access} ptr :: IO #{type __u64}
         parentFd <- #{peek struct landlock_path_beneath_attr, parent_fd} ptr :: IO #{type __s32}
-        return $ PathBeneathRule (fromBits allowedAccess accessFsFlagToBit) (fromIntegral parentFd)
+        return $ PathBeneathRule (fromBits accessFsFlagToBit allowedAccess) (fromIntegral parentFd)
     poke ptr (PathBeneathRule flags fd) = do
-        let allowedAccess = toBits flags accessFsFlagToBit :: #{type __u64}
+        let allowedAccess = toBits accessFsFlagToBit flags :: #{type __u64}
             parentFd = fromIntegral fd :: #{type __s32}
         #{poke struct landlock_path_beneath_attr, allowed_access} ptr allowedAccess
         #{poke struct landlock_path_beneath_attr, parent_fd} ptr parentFd

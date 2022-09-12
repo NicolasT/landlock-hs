@@ -5,6 +5,7 @@ module System.Landlock.Syscalls (
     , landlock_restrict_self
     , prctl
     , pR_SET_NO_NEW_PRIVS
+    , throwIfNonZero
     ) where
 
 #include <stddef.h>
@@ -14,11 +15,13 @@ module System.Landlock.Syscalls (
 #include "hs-landlock.h"
 #include "linux/landlock.h"
 
+import Control.Monad (unless)
 import Data.Int (Int32, Int64)
 import Data.Word (Word32, Word64)
 import Foreign.C.Error (throwErrnoIfMinus1)
 import Foreign.Ptr (Ptr)
 import Foreign.Storable (Storable(..))
+import System.IO.Error (ioeSetLocation)
 
 data LandlockRulesetAttr = LandlockRulesetAttr { landlockRulesetAttrHandledAccessFs :: #{type __u64} }
   deriving (Show, Eq)
@@ -54,9 +57,11 @@ landlock_add_rule :: #{type int}
                   -> #{type enum landlock_rule_type}
                   -> Ptr a
                   -> #{type __u32}
-                  -> IO #{type long}
+                  -> IO ()
 landlock_add_rule ruleset_fd rule_type rule_attr flags =
-    throwErrnoIfMinus1 "landlock_add_rule" $ _landlock_add_rule ruleset_fd rule_type rule_attr flags
+    throwIfNonZero "landlock_add_rule" $
+        throwErrnoIfMinus1 "landlock_add_rule" $
+            _landlock_add_rule ruleset_fd rule_type rule_attr flags
 
 foreign import ccall unsafe "hs-landlock.h landlock_restrict_self"
   _landlock_restrict_self :: #{type int}
@@ -65,9 +70,11 @@ foreign import ccall unsafe "hs-landlock.h landlock_restrict_self"
 
 landlock_restrict_self :: #{type int}
                        -> #{type __u32}
-                       -> IO #{type long}
+                       -> IO ()
 landlock_restrict_self ruleset_fd flags =
-    throwErrnoIfMinus1 "landlock_restrict_self" $ _landlock_restrict_self ruleset_fd flags
+    throwIfNonZero "landlock_restrict_self" $
+        throwErrnoIfMinus1 "landlock_restrict_self" $
+            _landlock_restrict_self ruleset_fd flags
 
 foreign import ccall unsafe "hs-landlock.h hs_landlock_prctl"
   _prctl :: #{type int}
@@ -88,3 +95,11 @@ prctl option arg2 arg3 arg4 arg5 =
 
 pR_SET_NO_NEW_PRIVS :: Num a => a
 pR_SET_NO_NEW_PRIVS = #{const PR_SET_NO_NEW_PRIVS}
+
+throwIfNonZero :: (Num a, Eq a, Show a) => String -> IO a -> IO ()
+throwIfNonZero location act = do
+    rc <- act
+    unless (rc == 0) $
+        ioError $ flip ioeSetLocation location
+                $ userError
+                $ "Unexpected return value: " ++ show rc ++ " /= 0"
