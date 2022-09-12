@@ -90,7 +90,8 @@ Library landlock-internal
                      , unix
   Build-Tool-Depends:  hsc2hs:hsc2hs
   Hs-Source-Dirs:      internal
-  Other-Extensions:    DataKinds
+  Other-Extensions:    CApiFFI
+                       DataKinds
                        EmptyCase
                        EmptyDataDeriving
                        FlexibleInstances
@@ -127,7 +128,8 @@ Test-Suite landlock-test
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
                      , tasty-quickcheck ^>=0.10.1.2
-  Other-Extensions:    DataKinds
+  Other-Extensions:    CApiFFI
+                       DataKinds
                        FlexibleInstances
                        LambdaCase
                        TypeApplications
@@ -144,6 +146,7 @@ Test-Suite landlock-test-threaded
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
   Ghc-Options:         -threaded -with-rtsopts -N2
+  Other-Extensions:    CApiFFI
 
 Test-Suite landlock-readme
   Import:              common-settings

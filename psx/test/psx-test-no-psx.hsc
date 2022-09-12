@@ -1,3 +1,5 @@
+{-# LANGUAGE CApiFFI #-}
+
 module Main (main) where
 
 #include "hs-psx.h"
@@ -25,10 +27,10 @@ instance Storable SigsetT where
     peek _ = error "peek not implemented"
     poke _ _ = error "poke not implemented"
 
-foreign import ccall unsafe "signal.h sigfillset"
+foreign import capi unsafe "signal.h sigfillset"
     sigfillset :: Ptr SigsetT -> IO #{type int}
 
-foreign import ccall unsafe "signal.h sigismember"
+foreign import capi unsafe "signal.h sigismember"
     sigismember :: Ptr SigsetT -> #{type int} -> IO #{type int}
 
 sigfillsetNotWrapped :: IO ()
@@ -38,7 +40,7 @@ sigfillsetNotWrapped = alloca $ \set -> do
     isMember @?= 1
 
 
-foreign import ccall unsafe "detect-psx.h detect_psx"
+foreign import capi unsafe "detect-psx.h detect_psx"
     detectPsx :: IO #{type int}
 
 psxNotDetected :: IO ()

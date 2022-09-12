@@ -1,3 +1,5 @@
+{-# LANGUAGE CApiFFI #-}
+
 module ThreadedScenario (scenario) where
 
 import Control.Concurrent.Async (Async, wait)
@@ -12,7 +14,7 @@ import Test.Tasty.HUnit (assertFailure, testCaseSteps)
 
 import System.Landlock (AccessFsFlag(..), RulesetAttr(..), landlock)
 
-foreign import ccall unsafe "unistd.h gettid"
+foreign import capi unsafe "unistd.h gettid"
     gettid :: IO CPid
 
 scenario :: (IO () -> (Async () -> IO ()) -> IO ()) -> TestTree

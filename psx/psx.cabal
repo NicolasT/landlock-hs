@@ -105,6 +105,7 @@ Test-Suite psx-test-threaded
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
   Ghc-Options:         -threaded -with-rtsopts -N2
+  Other-Extensions:    CApiFFI
 
 Test-Suite psx-test
   Import:              common-settings
@@ -119,6 +120,7 @@ Test-Suite psx-test
                      , async ^>=2.2.3
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
+  Other-Extensions:    CApiFFI
 
 Test-Suite psx-test-no-psx
   Import:              common-settings
@@ -131,3 +133,4 @@ Test-Suite psx-test-no-psx
   Build-Depends:       base
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
+  Other-Extensions:    CApiFFI
