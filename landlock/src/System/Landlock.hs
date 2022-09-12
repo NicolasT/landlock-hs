@@ -100,6 +100,7 @@ import System.Landlock.Syscalls (
     , landlock_restrict_self
     , prctl
     , pR_SET_NO_NEW_PRIVS
+    , throwIfNonZero
     )
 import System.Landlock.Version (Version(..), version1, version2)
 
@@ -149,7 +150,7 @@ createRuleset attr flags = with attr' $ \attrp -> wrap <$> landlock_create_rules
 
 restrictSelf :: LandlockFd -> [RestrictSelfFlag] -> IO ()
 restrictSelf fd flags =
-    void $ landlock_restrict_self (fromIntegral $ unLandlockFd fd) flags'
+    landlock_restrict_self (fromIntegral $ unLandlockFd fd) flags'
   where
     flags' = toBits restrictSelfFlagToBit flags
 
@@ -187,7 +188,7 @@ landlock attr createRulesetFlags restrictSelfFlags act =
     bracket (liftIO $ createRuleset attr createRulesetFlags) (liftIO . closeFd . unLandlockFd) $ \fd -> do
         res <- act (addRule fd)
         liftIO $ do
-            void $ prctl pR_SET_NO_NEW_PRIVS 1 0 0 0
+            throwIfNonZero "prtcl" $ prctl pR_SET_NO_NEW_PRIVS 1 0 0 0
             restrictSelf fd restrictSelfFlags
         return res
 
@@ -202,7 +203,7 @@ addRule :: (MonadIO m, Storable (Rule a))
            --   list.
         -> m ()
 addRule fd rule flags = liftIO $ with rule $ \ruleAttrp ->
-    void $ landlock_add_rule (fromIntegral $ unLandlockFd fd) (ruleType rule) ruleAttrp flags'
+    landlock_add_rule (fromIntegral $ unLandlockFd fd) (ruleType rule) ruleAttrp flags'
   where
     flags' = toBits addRuleFlagToBit flags
 
