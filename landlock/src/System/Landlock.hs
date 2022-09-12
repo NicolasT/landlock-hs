@@ -127,6 +127,7 @@ isSupported = handleJust unsupportedOperation (\() -> return False) $ do
 --
 -- This represents a @struct landlock_ruleset_attr@ as passed to
 -- @landlock_create_ruleset@.
+{- HLINT ignore "Use newtype instead of data" -}
 data RulesetAttr = RulesetAttr { rulesetAttrHandledAccessFs :: [AccessFsFlag]
                                  -- ^ Actions (cf. 'AccessFsFlag') that ought to
                                  -- be handled by a ruleset and should be
