@@ -4,10 +4,8 @@ module System.Landlock.Version (
     , version2
     ) where
 
-import Data.Int (Int64)
-
 -- | Representation of a Landlock ABI version as reported by the kernel.
-newtype Version = Version { getVersion :: #{type long}  -- ^ Get the numerical version.
+newtype Version = Version { getVersion :: Word  -- ^ Get the numerical version.
                           }
   deriving (Show, Eq, Ord)
 

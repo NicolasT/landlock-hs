@@ -109,7 +109,7 @@ import System.Landlock.Version (Version(..), version1, version2)
 -- __Warning:__ calling this on a system without Landlock support, or with
 -- Landlock disabled, will result in an exception.
 abiVersion :: IO Version
-abiVersion = Version <$> landlock_create_ruleset nullPtr 0 flags
+abiVersion = Version . fromIntegral <$> landlock_create_ruleset nullPtr 0 flags
   where
     flags = toBits createRulesetFlagToBit [CreateRulesetVersion]
 
