@@ -36,9 +36,9 @@ Extra-Source-Files:
   cbits/linux/GPL-2.0
   cbits/linux/Linux-syscall-note
 
-Tested-With:         GHC ==8.10.5
+Tested-With:         GHC ==8.10.7
                    , GHC ==9.0.2
-                   , GHC ==9.2.2
+                   , GHC ==9.2.4
                    , GHC ==9.4.2
 
 Source-Repository head
