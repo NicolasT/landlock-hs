@@ -11,8 +11,7 @@ index 5147875..614cc9c 100644
      timeout-minutes:
        60
      container:
--      image: buildpack-deps:bionic
-+      image: buildpack-deps:jammy
+       image: buildpack-deps:jammy
 +      options: --security-opt seccomp=unconfined
      continue-on-error: ${{ matrix.allow-failure }}
      strategy:

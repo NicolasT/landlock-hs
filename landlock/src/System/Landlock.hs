@@ -109,7 +109,7 @@ import System.Landlock.Version (Version(..), version1, version2)
 -- __Warning:__ calling this on a system without Landlock support, or with
 -- Landlock disabled, will result in an exception.
 abiVersion :: IO Version
-abiVersion = Version <$> landlock_create_ruleset nullPtr 0 flags
+abiVersion = Version . fromIntegral <$> landlock_create_ruleset nullPtr 0 flags
   where
     flags = toBits createRulesetFlagToBit [CreateRulesetVersion]
 
@@ -127,6 +127,7 @@ isSupported = handleJust unsupportedOperation (\() -> return False) $ do
 --
 -- This represents a @struct landlock_ruleset_attr@ as passed to
 -- @landlock_create_ruleset@.
+{- HLINT ignore "Use newtype instead of data" -}
 data RulesetAttr = RulesetAttr { rulesetAttrHandledAccessFs :: [AccessFsFlag]
                                  -- ^ Actions (cf. 'AccessFsFlag') that ought to
                                  -- be handled by a ruleset and should be
