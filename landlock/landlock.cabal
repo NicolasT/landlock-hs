@@ -50,7 +50,7 @@ Source-Repository head
 Flag landlocked
   Description:         Build the landlocked utility.
   Default:             True
-  Manual:              False
+  Manual:              True
 
 Common common-settings
   Default-Language:    Haskell2010
