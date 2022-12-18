@@ -2,12 +2,17 @@
 
 ## 0.1.1.0 -- YYYY-mm-dd
 
+* Support GHC 9.4.2 / `base ^>=4.17`.
+
 * Rely on `_POSIX_C_SOURCE >= 1` instead of `_GNU_SOURCE` as feature test macro
   for `sigset_t` in `hs-psx.c`.
 
+* Use `capi` foreign imports instead of `ccall` using the `CApiFFI` language
+  extension.
+
 * Include a `Setup.hs` file.
 
-* Support GHC 9.4.2 / `base ^>=4.17`.
+* Minor stylistic changes to Cabal package description file.
 
 ## 0.1.0.0 -- 2022-08-24
 
