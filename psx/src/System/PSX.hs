@@ -27,5 +27,4 @@
 -- 2.44) is broken. Hence, this library contains a bundled version of @libpsx@
 -- by default. Disable the @bundled-libpsx@ flag to use a system-provided
 -- version of the library, which must be from @libcap@ version 2.46 or higher.
-
 module System.PSX () where

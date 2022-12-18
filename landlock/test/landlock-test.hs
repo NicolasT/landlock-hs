@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TypeApplications #-}
-
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Main (main) where
@@ -11,44 +10,41 @@ import Control.Concurrent.Async (withAsync)
 import Control.Exception.Base (handleJust)
 import Control.Monad (unless)
 import Data.List (nub, sort)
-import Data.Proxy (Proxy(Proxy))
+import Data.Proxy (Proxy (Proxy))
 import System.Environment (lookupEnv)
-import System.Exit (ExitCode(..))
+import System.Exit (ExitCode (..))
 import System.FilePath ((</>))
-import System.IO (IOMode(..), withFile)
+import System.IO (IOMode (..), withFile)
 import System.IO.Error (isPermissionError)
-import System.Posix.Types (Fd)
-import System.Process (CreateProcess(..), proc, readCreateProcessWithExitCode)
-
-import Test.QuickCheck.Classes.Base (
-      Laws(..)
-    , boundedEnumLaws
-    , eqLaws
-    , ordLaws
-    , showLaws
-    , storableLaws
-    )
-import Test.Tasty (TestTree, defaultMain, testGroup)
-import Test.Tasty.HUnit ((@?), (@=?), (@?=), assertBool, assertFailure, testCase, testCaseSteps)
-import Test.Tasty.QuickCheck (Arbitrary(..), arbitraryBoundedEnum, testProperty)
-
-import System.Landlock (
-      AccessFsFlag(..)
-    , RulesetAttr(..)
-    , OpenPathFlags(..)
-    , abiVersion
-    , accessFsFlags
-    , defaultOpenPathFlags
-    , isSupported
-    , landlock
-    , version1
-    , withOpenPath
-    )
+import System.Landlock
+  ( AccessFsFlag (..),
+    OpenPathFlags (..),
+    RulesetAttr (..),
+    abiVersion,
+    accessFsFlags,
+    defaultOpenPathFlags,
+    isSupported,
+    landlock,
+    version1,
+    withOpenPath,
+  )
 import System.Landlock.Flags (CreateRulesetFlag)
-import System.Landlock.Rules (Rule, RuleType(..), pathBeneath)
-import System.Landlock.Syscalls (LandlockRulesetAttr(..))
-import System.Landlock.Version (Version(..))
-
+import System.Landlock.Rules (Rule, RuleType (..), pathBeneath)
+import System.Landlock.Syscalls (LandlockRulesetAttr (..))
+import System.Landlock.Version (Version (..))
+import System.Posix.Types (Fd)
+import System.Process (CreateProcess (..), proc, readCreateProcessWithExitCode)
+import Test.QuickCheck.Classes.Base
+  ( Laws (..),
+    boundedEnumLaws,
+    eqLaws,
+    ordLaws,
+    showLaws,
+    storableLaws,
+  )
+import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty.HUnit (assertBool, assertFailure, testCase, testCaseSteps, (@=?), (@?), (@?=))
+import Test.Tasty.QuickCheck (Arbitrary (..), arbitraryBoundedEnum, testProperty)
 import ThreadedScenario (scenario)
 
 -- This test-suite is a bit "weird". We want to test various privilege-related
@@ -70,148 +66,174 @@ landlockTestEnvironmentVariable :: String
 landlockTestEnvironmentVariable = "LANDLOCK_TEST"
 
 main :: IO ()
-main = lookupEnv "LANDLOCK_TEST" >>= \case
+main =
+  lookupEnv "LANDLOCK_TEST" >>= \case
     Nothing -> do
-        defaultMain tests
+      defaultMain tests
     Just testName -> case lookup testName functionalTestCases of
-        Nothing -> fail $ "Unknown test: " ++ testName
-        Just act -> act
+      Nothing -> fail $ "Unknown test: " ++ testName
+      Just act -> act
 
 tests :: TestTree
-tests = testGroup "Tests" [
-      properties
-    , functionalTests
-    , scenario withAsync
+tests =
+  testGroup
+    "Tests"
+    [ properties,
+      functionalTests,
+      scenario withAsync
     ]
 
 properties :: TestTree
-properties = testGroup "Properties" [
-      testGroup "LandlockRulesetAttr" $ map lawsToTestTree [
-          eqLaws (Proxy @LandlockRulesetAttr)
-        , showLaws (Proxy @LandlockRulesetAttr)
-        , storableLaws (Proxy @LandlockRulesetAttr)
-        ]
-    , testGroup "RulesetAttr" $ map lawsToTestTree [
-          eqLaws (Proxy @RulesetAttr)
-        , showLaws (Proxy @RulesetAttr)
-        ]
-    , testGroup "CreateRulesetFlag" $ map lawsToTestTree [
-          eqLaws (Proxy @CreateRulesetFlag)
-        , showLaws (Proxy @CreateRulesetFlag)
-        -- boundedEnum laws don't work nicely with single-constructor enums
-        -- , boundedEnumLaws (Proxy @CreateRulesetFlag)
-        ]
-    , testGroup "AccessFsFlag" $ map lawsToTestTree [
-          eqLaws (Proxy @AccessFsFlag)
-        , showLaws (Proxy @AccessFsFlag)
-        , boundedEnumLaws (Proxy @AccessFsFlag)
-        , ordLaws (Proxy @AccessFsFlag)
-        ]
-    , testGroup "OpenPathFlags" $ map lawsToTestTree [
-          eqLaws (Proxy @OpenPathFlags)
-        , showLaws (Proxy @OpenPathFlags)
-        ]
-    , testGroup "Rule 'PathBeneath" $ map lawsToTestTree [
-          eqLaws (Proxy @(Rule 'PathBeneath))
-        , showLaws (Proxy @(Rule 'PathBeneath))
-        , storableLaws (Proxy @(Rule 'PathBeneath))
-        ]
-    , testGroup "Version" $ map lawsToTestTree [
-          eqLaws (Proxy @Version)
-        , showLaws (Proxy @Version)
-        , ordLaws (Proxy @Version)
-        ]
+properties =
+  testGroup
+    "Properties"
+    [ testGroup "LandlockRulesetAttr" $
+        map
+          lawsToTestTree
+          [ eqLaws (Proxy @LandlockRulesetAttr),
+            showLaws (Proxy @LandlockRulesetAttr),
+            storableLaws (Proxy @LandlockRulesetAttr)
+          ],
+      testGroup "RulesetAttr" $
+        map
+          lawsToTestTree
+          [ eqLaws (Proxy @RulesetAttr),
+            showLaws (Proxy @RulesetAttr)
+          ],
+      testGroup "CreateRulesetFlag" $
+        map
+          lawsToTestTree
+          [ eqLaws (Proxy @CreateRulesetFlag),
+            showLaws (Proxy @CreateRulesetFlag)
+            -- boundedEnum laws don't work nicely with single-constructor enums
+            -- , boundedEnumLaws (Proxy @CreateRulesetFlag)
+          ],
+      testGroup "AccessFsFlag" $
+        map
+          lawsToTestTree
+          [ eqLaws (Proxy @AccessFsFlag),
+            showLaws (Proxy @AccessFsFlag),
+            boundedEnumLaws (Proxy @AccessFsFlag),
+            ordLaws (Proxy @AccessFsFlag)
+          ],
+      testGroup "OpenPathFlags" $
+        map
+          lawsToTestTree
+          [ eqLaws (Proxy @OpenPathFlags),
+            showLaws (Proxy @OpenPathFlags)
+          ],
+      testGroup "Rule 'PathBeneath" $
+        map
+          lawsToTestTree
+          [ eqLaws (Proxy @(Rule 'PathBeneath)),
+            showLaws (Proxy @(Rule 'PathBeneath)),
+            storableLaws (Proxy @(Rule 'PathBeneath))
+          ],
+      testGroup "Version" $
+        map
+          lawsToTestTree
+          [ eqLaws (Proxy @Version),
+            showLaws (Proxy @Version),
+            ordLaws (Proxy @Version)
+          ]
     ]
   where
     lawsToTestTree laws = testGroup (lawsTypeclass laws) $ flip map (lawsProperties laws) $ uncurry testProperty
 
 instance Arbitrary Version where
-    arbitrary = Version <$> arbitrary
+  arbitrary = Version <$> arbitrary
 
 instance Arbitrary OpenPathFlags where
-    arbitrary = OpenPathFlags <$> arbitrary <*> arbitrary <*> arbitrary
+  arbitrary = OpenPathFlags <$> arbitrary <*> arbitrary <*> arbitrary
 
 instance Arbitrary RulesetAttr where
-    arbitrary = RulesetAttr <$> arbitrary
+  arbitrary = RulesetAttr <$> arbitrary
 
 instance Arbitrary CreateRulesetFlag where
-    arbitrary = arbitraryBoundedEnum
+  arbitrary = arbitraryBoundedEnum
 
 instance Arbitrary LandlockRulesetAttr where
-    arbitrary = LandlockRulesetAttr <$> arbitrary
+  arbitrary = LandlockRulesetAttr <$> arbitrary
 
 instance Arbitrary (Rule 'PathBeneath) where
-    arbitrary = pathBeneath <$> fmap (fromIntegral :: Int -> Fd) arbitrary
-                            <*> fmap (nub . sort) arbitrary
+  arbitrary =
+    pathBeneath
+      <$> fmap (fromIntegral :: Int -> Fd) arbitrary
+      <*> fmap (nub . sort) arbitrary
 
 instance Arbitrary AccessFsFlag where
-    arbitrary = arbitraryBoundedEnum
-
+  arbitrary = arbitraryBoundedEnum
 
 functionalTests :: TestTree
-functionalTests = testGroup "Functional Tests" $ [
-      testCase "abiVersion >= 1" $ do
-          v <- abiVersion
-          v >= version1 @? "Unexpected version"
-    , testCase "abiVersion is idempotent" $ do
-          v1 <- abiVersion
-          v2 <- abiVersion
-          v1 @=? v2
-    , testCase "isSupported" $
-          isSupported >>= assertBool "landlock API not supported"
-    ] ++ map (\(name, _) -> testCaseSteps name (`runFunctionalTest` name)) functionalTestCases
+functionalTests =
+  testGroup "Functional Tests" $
+    [ testCase "abiVersion >= 1" $ do
+        v <- abiVersion
+        v >= version1 @? "Unexpected version",
+      testCase "abiVersion is idempotent" $ do
+        v1 <- abiVersion
+        v2 <- abiVersion
+        v1 @=? v2,
+      testCase "isSupported" $
+        isSupported >>= assertBool "landlock API not supported"
+    ]
+      ++ map (\(name, _) -> testCaseSteps name (`runFunctionalTest` name)) functionalTestCases
   where
     runFunctionalTest step name = do
-        step "Running test subprocess"
-        (rc, stdout, stderr) <- readCreateProcessWithExitCode (mkCreateProcess name) ""
-        step $ "Test subprocess exited with " ++ show rc
-        unless (null stdout) $
-            step $ "Test subprocess stdout:\n" ++ stdout
-        unless (null stderr) $
-            step $ "Test subprocess stderr:\n" ++ stderr
-        rc @?= ExitSuccess
+      step "Running test subprocess"
+      (rc, stdout, stderr) <- readCreateProcessWithExitCode (mkCreateProcess name) ""
+      step $ "Test subprocess exited with " ++ show rc
+      unless (null stdout) $
+        step $
+          "Test subprocess stdout:\n" ++ stdout
+      unless (null stderr) $
+        step $
+          "Test subprocess stderr:\n" ++ stderr
+      rc @?= ExitSuccess
 
-    mkCreateProcess name = (proc "/proc/self/exe" []) { env = Just [(landlockTestEnvironmentVariable, name)]
-                                                      , close_fds = True
-                                                      }
+    mkCreateProcess name =
+      (proc "/proc/self/exe" [])
+        { env = Just [(landlockTestEnvironmentVariable, name)],
+          close_fds = True
+        }
 
 functionalTestCases :: [(String, IO ())]
-functionalTestCases = [
-      ("All v1 restrictions in sandbox", testAllV1Restrictions)
-    , ("Restrict read, except for /etc", testRestrictReadExceptEtc)
-    ]
+functionalTestCases =
+  [ ("All v1 restrictions in sandbox", testAllV1Restrictions),
+    ("Restrict read, except for /etc", testRestrictReadExceptEtc)
+  ]
 
 testAllV1Restrictions :: IO ()
 testAllV1Restrictions = do
-    let fn = "/etc/resolv.conf"
-        try act = withFile fn ReadMode act
+  let fn = "/etc/resolv.conf"
+      try act = withFile fn ReadMode act
 
-    -- First, try to open as-is
-    try (\_ -> return ())
+  -- First, try to open as-is
+  try (\_ -> return ())
 
-    -- Then, sandbox and try again
-    v1Restrictions <- case lookup version1 accessFsFlags of
-        Nothing -> assertFailure $ "Unknown ABI version: " ++ show version1
-        Just r -> return r
-    landlock (RulesetAttr v1Restrictions) [] [] $ \_ -> return ()
-    catchPermissionDenied $ try $ \_ -> fail $ "Still able to open " ++ fn
+  -- Then, sandbox and try again
+  v1Restrictions <- case lookup version1 accessFsFlags of
+    Nothing -> assertFailure $ "Unknown ABI version: " ++ show version1
+    Just r -> return r
+  landlock (RulesetAttr v1Restrictions) [] [] $ \_ -> return ()
+  catchPermissionDenied $ try $ \_ -> fail $ "Still able to open " ++ fn
 
 testRestrictReadExceptEtc :: IO ()
 testRestrictReadExceptEtc = do
-    let dir = "/etc"
-        file = dir </> "passwd"
-        act = withFile file ReadMode $ \_ -> return ()
-    v1Restrictions <- case lookup version1 accessFsFlags of
-        Nothing -> assertFailure $ "Unknown ABI version: " ++ show version1
-        Just r -> return r
+  let dir = "/etc"
+      file = dir </> "passwd"
+      act = withFile file ReadMode $ \_ -> return ()
+  v1Restrictions <- case lookup version1 accessFsFlags of
+    Nothing -> assertFailure $ "Unknown ABI version: " ++ show version1
+    Just r -> return r
 
-    act
+  act
 
-    landlock (RulesetAttr v1Restrictions) [] [] $ \addRule -> do
-        withOpenPath dir defaultOpenPathFlags { directory = True } $ \fd -> do
-            addRule (pathBeneath fd [AccessFsReadFile, AccessFsReadDir, AccessFsExecute]) []
+  landlock (RulesetAttr v1Restrictions) [] [] $ \addRule -> do
+    withOpenPath dir defaultOpenPathFlags {directory = True} $ \fd -> do
+      addRule (pathBeneath fd [AccessFsReadFile, AccessFsReadDir, AccessFsExecute]) []
 
-    act
+  act
 
 catchPermissionDenied :: IO () -> IO ()
 catchPermissionDenied = handleJust (\exc -> if isPermissionError exc then Just () else Nothing) return
