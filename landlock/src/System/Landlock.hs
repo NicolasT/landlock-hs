@@ -23,86 +23,101 @@
 --
 -- For more information, see the [Landlock homepage](https://landlock.io/) and its
 -- [kernel documentation](https://docs.kernel.org/userspace-api/landlock.html).
+module System.Landlock
+  ( -- * Core API
 
-module System.Landlock (
-    -- * Core API
     --
+
     -- | Use 'landlock' to sandbox a process.
-    --
     -- $example
-      landlock
-    , RulesetAttr(..)
+    landlock,
+    RulesetAttr (..),
+
     -- ** Filesystem Access Flags
+
     --
+
     -- | Filesystem access flags to sandbox filesystem access.
-    , AccessFsFlag(..)
-    , accessFsFlags
-    , accessFsFlagIsReadOnly
+    AccessFsFlag (..),
+    accessFsFlags,
+    accessFsFlagIsReadOnly,
+
     -- * Sandboxing Rules
+
     --
+
     -- | Sandboxing rules to apply.
-    , Rule
-    , pathBeneath
+    Rule,
+    pathBeneath,
+
     -- * Utility Functions
+
     --
+
     -- | Various utility functions.
-    , isSupported
+    isSupported,
+
     -- ** Landlock ABI Version
+
     --
+
     -- | Retrieve and handle the kernel's Landlock ABI version.
-    , abiVersion
-    , Version
-    , getVersion
-    , version1
-    , version2
+    abiVersion,
+    Version,
+    getVersion,
+    version1,
+    version2,
+
     -- ** Opening paths using @O_PATH@
+
     --
+
     -- | When creating a 'pathBeneath' rule, a file descriptor to a directory
     -- or file is needed. These can be safely @open@ed using the @O_PATH@ flag
     -- using the following functions.
-    , withOpenPath
-    , withOpenPathAt
-    , OpenPathFlags(..)
-    , defaultOpenPathFlags
-    ) where
+    withOpenPath,
+    withOpenPathAt,
+    OpenPathFlags (..),
+    defaultOpenPathFlags,
+  )
+where
 
 import Control.Exception.Base (handleJust)
 import Control.Monad (void)
 import Control.Monad.Catch (MonadMask, bracket)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import GHC.IO.Exception (IOErrorType(UnsupportedOperation))
 import Foreign.Marshal.Utils (with)
 import Foreign.Ptr (nullPtr)
 import Foreign.Storable (Storable, sizeOf)
+import GHC.IO.Exception (IOErrorType (UnsupportedOperation))
 import System.IO.Error (ioeGetErrorType)
+import System.Landlock.Flags
+  ( AccessFsFlag (..),
+    AddRuleFlag,
+    CreateRulesetFlag (..),
+    RestrictSelfFlag,
+    accessFsFlagIsReadOnly,
+    accessFsFlagToBit,
+    accessFsFlags,
+    addRuleFlagToBit,
+    createRulesetFlagToBit,
+    restrictSelfFlagToBit,
+    toBits,
+  )
+import System.Landlock.OpenPath (OpenPathFlags (..), defaultOpenPathFlags, withOpenPath, withOpenPathAt)
+import System.Landlock.Rules (Rule, pathBeneath, ruleType)
+import System.Landlock.Syscalls
+  ( LandlockRulesetAttr (..),
+    landlock_add_rule,
+    landlock_create_ruleset,
+    landlock_restrict_self,
+    pR_SET_NO_NEW_PRIVS,
+    prctl,
+    throwIfNonZero,
+  )
+import System.Landlock.Version (Version (..), version1, version2)
 import System.Posix.IO (closeFd)
 import System.Posix.Types (Fd)
-
-import System.Landlock.Flags (
-      toBits
-    , AccessFsFlag(..)
-    , accessFsFlagToBit
-    , accessFsFlags
-    , accessFsFlagIsReadOnly
-    , CreateRulesetFlag(..)
-    , createRulesetFlagToBit
-    , RestrictSelfFlag
-    , restrictSelfFlagToBit
-    , AddRuleFlag
-    , addRuleFlagToBit
-    )
-import System.Landlock.OpenPath (OpenPathFlags(..), defaultOpenPathFlags, withOpenPath, withOpenPathAt)
-import System.Landlock.Rules (Rule, ruleType, pathBeneath)
-import System.Landlock.Syscalls (
-      LandlockRulesetAttr(..)
-    , landlock_create_ruleset
-    , landlock_add_rule
-    , landlock_restrict_self
-    , prctl
-    , pR_SET_NO_NEW_PRIVS
-    , throwIfNonZero
-    )
-import System.Landlock.Version (Version(..), version1, version2)
 
 -- | Retrieve the Landlock ABI version of the running system.
 --
@@ -116,8 +131,8 @@ abiVersion = Version . fromIntegral <$> landlock_create_ruleset nullPtr 0 flags
 -- | Check whether Landlock is supported and enabled on the running system.
 isSupported :: IO Bool
 isSupported = handleJust unsupportedOperation (\() -> return False) $ do
-    void abiVersion
-    return True
+  void abiVersion
+  return True
   where
     unsupportedOperation exc = if isUnsupportedOperationError exc then Just () else Nothing
     isUnsupportedOperationError = isUnsupportedOperationErrorType . ioeGetErrorType
@@ -127,31 +142,33 @@ isSupported = handleJust unsupportedOperation (\() -> return False) $ do
 --
 -- This represents a @struct landlock_ruleset_attr@ as passed to
 -- @landlock_create_ruleset@.
+
 {- HLINT ignore "Use newtype instead of data" -}
-data RulesetAttr = RulesetAttr { rulesetAttrHandledAccessFs :: [AccessFsFlag]
-                                 -- ^ Actions (cf. 'AccessFsFlag') that ought to
-                                 -- be handled by a ruleset and should be
-                                 -- forbidden if no rule explicitly allow them.
-                                 -- This is needed forbackward compatibility
-                                 -- reasons.
-                               }
+data RulesetAttr = RulesetAttr
+  { -- | Actions (cf. 'AccessFsFlag') that ought to
+    -- be handled by a ruleset and should be
+    -- forbidden if no rule explicitly allow them.
+    -- This is needed forbackward compatibility
+    -- reasons.
+    rulesetAttrHandledAccessFs :: [AccessFsFlag]
+  }
   deriving (Show, Eq)
 
 -- | Handle to a Landlock ruleset. Use 'addRule' to register new rules.
-newtype LandlockFd = LandlockFd { unLandlockFd :: Fd }
+newtype LandlockFd = LandlockFd {unLandlockFd :: Fd}
   deriving (Show, Eq)
 
 createRuleset :: RulesetAttr -> [CreateRulesetFlag] -> IO LandlockFd
 createRuleset attr flags = with attr' $ \attrp -> wrap <$> landlock_create_ruleset attrp (fromIntegral $ sizeOf attr') flags'
   where
     wrap = LandlockFd . fromIntegral
-    attr' = LandlockRulesetAttr { landlockRulesetAttrHandledAccessFs = handledAccessFs }
+    attr' = LandlockRulesetAttr {landlockRulesetAttrHandledAccessFs = handledAccessFs}
     handledAccessFs = toBits accessFsFlagToBit (rulesetAttrHandledAccessFs attr)
     flags' = toBits createRulesetFlagToBit flags
 
 restrictSelf :: LandlockFd -> [RestrictSelfFlag] -> IO ()
 restrictSelf fd flags =
-    landlock_restrict_self (fromIntegral $ unLandlockFd fd) flags'
+  landlock_restrict_self (fromIntegral $ unLandlockFd fd) flags'
   where
     flags' = toBits restrictSelfFlagToBit flags
 
@@ -166,49 +183,51 @@ restrictSelf fd flags =
 --
 -- __Warning:__ calling this on a system without Landlock support, or with
 -- Landlock disabled, will result in an exception.
-landlock :: (MonadMask m, MonadIO m)
-         => RulesetAttr
-            -- ^ Ruleset attribute passed to @landlock_create_ruleset@.
-         -> [CreateRulesetFlag]
-            -- ^ Flags passed to @landlock_create_ruleset@. Since no flags but
-            --   'CreateRulesetVersion' (@LANDLOCK_CREATE_RULESET_VERSION@) are
-            --   defined, and this flag must not be used when creating an actual
-            --   ruleset, this should be an empty list.
-         -> [RestrictSelfFlag]
-            -- ^ Flags passed to @landlock_restrict_self@. Since no flags are
-            -- defined, this should be an empty list.
-         -> ((Storable (Rule r) => Rule r -> [AddRuleFlag] -> m ()) -> m a)
-            -- ^ Action that will be called before the Landlock sandbox is
-            -- enforced. The provided function can be used to register
-            -- sandboxing rules (internally using @landlock_add_rule@),
-            -- given a 'Rule' and a set of 'AddRuleFlag's. However, since no
-            -- flags are currently defined, this should be an empty list.
-         -> m a
-            -- ^ Result of the given action.
+landlock ::
+  (MonadMask m, MonadIO m) =>
+  -- | Ruleset attribute passed to @landlock_create_ruleset@.
+  RulesetAttr ->
+  -- | Flags passed to @landlock_create_ruleset@. Since no flags but
+  --   'CreateRulesetVersion' (@LANDLOCK_CREATE_RULESET_VERSION@) are
+  --   defined, and this flag must not be used when creating an actual
+  --   ruleset, this should be an empty list.
+  [CreateRulesetFlag] ->
+  -- | Flags passed to @landlock_restrict_self@. Since no flags are
+  -- defined, this should be an empty list.
+  [RestrictSelfFlag] ->
+  -- | Action that will be called before the Landlock sandbox is
+  -- enforced. The provided function can be used to register
+  -- sandboxing rules (internally using @landlock_add_rule@),
+  -- given a 'Rule' and a set of 'AddRuleFlag's. However, since no
+  -- flags are currently defined, this should be an empty list.
+  ((Storable (Rule r) => Rule r -> [AddRuleFlag] -> m ()) -> m a) ->
+  -- | Result of the given action.
+  m a
 landlock attr createRulesetFlags restrictSelfFlags act =
-    bracket (liftIO $ createRuleset attr createRulesetFlags) (liftIO . closeFd . unLandlockFd) $ \fd -> do
-        res <- act (addRule fd)
-        liftIO $ do
-            throwIfNonZero "prtcl" $ prctl pR_SET_NO_NEW_PRIVS 1 0 0 0
-            restrictSelf fd restrictSelfFlags
-        return res
+  bracket (liftIO $ createRuleset attr createRulesetFlags) (liftIO . closeFd . unLandlockFd) $ \fd -> do
+    res <- act (addRule fd)
+    liftIO $ do
+      throwIfNonZero "prtcl" $ prctl pR_SET_NO_NEW_PRIVS 1 0 0 0
+      restrictSelf fd restrictSelfFlags
+    return res
 
 -- | Register a new 'Rule' with a Landlock instance.
-addRule :: (MonadIO m, Storable (Rule a))
-        => LandlockFd
-           -- ^ Handle to a Landlock instance.
-        -> Rule a
-           -- ^ Sandboxing 'Rule' to register with the Landlock instance.
-        -> [AddRuleFlag]
-           -- ^ Flags. Since no flags are defined, this should be an empty
-           --   list.
-        -> m ()
-addRule fd rule flags = liftIO $ with rule $ \ruleAttrp ->
+addRule ::
+  (MonadIO m, Storable (Rule a)) =>
+  -- | Handle to a Landlock instance.
+  LandlockFd ->
+  -- | Sandboxing 'Rule' to register with the Landlock instance.
+  Rule a ->
+  -- | Flags. Since no flags are defined, this should be an empty
+  --   list.
+  [AddRuleFlag] ->
+  m ()
+addRule fd rule flags = liftIO $
+  with rule $ \ruleAttrp ->
     landlock_add_rule (fromIntegral $ unLandlockFd fd) (ruleType rule) ruleAttrp flags'
   where
     flags' = toBits addRuleFlagToBit flags
 
--- |
 -- $example
 --
 -- Example usage:
