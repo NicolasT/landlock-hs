@@ -7,6 +7,8 @@
 
 * Support Landlock ABI v2 and `LANDLOCK_ACCESS_FS_REFER` as part of it.
 
+* Support Landlock ABI v3 and `LANDLOCK_ACCESS_FS_TRUNCATE` as part of it.
+
 * Support GHC 9.4.2 / `base ^>=4.17`.
 
 * Support `unix ^>=2.8`.
