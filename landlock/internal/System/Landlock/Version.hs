@@ -2,6 +2,7 @@ module System.Landlock.Version
   ( Version (..),
     version1,
     version2,
+    version3,
   )
 where
 
@@ -21,3 +22,7 @@ version1 = Version 1
 -- | ABI version 2.
 version2 :: Version
 version2 = Version 2
+
+-- | ABI version 3.
+version3 :: Version
+version3 = Version 3

@@ -35,10 +35,11 @@ import System.Landlock.Hsc
     lANDLOCK_ACCESS_FS_REFER,
     lANDLOCK_ACCESS_FS_REMOVE_DIR,
     lANDLOCK_ACCESS_FS_REMOVE_FILE,
+    lANDLOCK_ACCESS_FS_TRUNCATE,
     lANDLOCK_ACCESS_FS_WRITE_FILE,
     lANDLOCK_CREATE_RULESET_VERSION,
   )
-import System.Landlock.Version (Version, version1, version2)
+import System.Landlock.Version (Version, version1, version2, version3)
 
 -- | Fold a set of flags into a bitset/number.
 toBits :: (Num b, Bits b, Foldable f) => (a -> b) -> f a -> b
@@ -59,6 +60,7 @@ fromBits f b = filter (\a -> b .&. f a /= 0) [minBound .. maxBound]
 -- - 'AccessFsExecute'
 -- - 'AccessFsWriteFile'
 -- - 'AccessFsReadFile'
+-- - 'AccessFsTruncate'
 --
 -- A directory can receive access rights related to files or directories. The
 -- following access right is applied to the directory itself, and the
@@ -81,7 +83,7 @@ fromBits f b = filter (\a -> b .&. f a /= 0) [minBound .. maxBound]
 -- - 'AccessFsRefer'
 --
 -- __Warning:__ It is currently not possible to restrict some file-related
--- actions acessible through these syscall families: @chdir@, @truncate@,
+-- actions acessible through these syscall families: @chdir@,
 -- @stat@, @flock@, @chmod@, @chown@, @setxattr@, @utime@, @ioctl@, @fcntl@,
 -- @access@. Future Landlock evolutions will enable to restrict them.
 data AccessFsFlag
@@ -89,7 +91,10 @@ data AccessFsFlag
     AccessFsExecute
   | -- | Open a file with write access.
     AccessFsWriteFile
-  | -- | Open a file with read access.
+  | -- | Open a file with read access. Note that
+    --   you might additionally need the @LANDLOCK_ACCESS_FS_TRUNCATE@ right in order
+    --   to overwrite files with @open@ using @O_TRUNC@ or
+    --   @creat@.
     AccessFsReadFile
   | -- | Open a directory or list its content.
     AccessFsReadDir
@@ -128,6 +133,15 @@ data AccessFsFlag
     --   @EACCES@.  The @EACCES@ @errno@ prevails over @EXDEV@ to let user space
     --   efficiently deal with an unrecoverable error.
     AccessFsRefer
+  | -- | Truncate a file with @truncate@,
+    --   @ftruncate@, @creat@, or @open@ with
+    --   @O_TRUNC@. Whether an opened file can be truncated with
+    --   @ftruncate@ is determined during @open@, in the
+    --   same way as read and write permissions are checked during
+    --   @open@ using @LANDLOCK_ACCESS_FS_READ_FILE@ and
+    --   @LANDLOCK_ACCESS_FS_WRITE_FILE@. This access right is available since the
+    --   third version of the Landlock ABI.
+    AccessFsTruncate
   -- Note: when adding new flags, this likely means a new ABI version is
   -- available. Hence, add this to 'System.Landlock.Version' (and export it
   -- from 'System.Landlock'), and make sure to update both 'accessFsFlags' and
@@ -151,6 +165,7 @@ accessFsFlagToBit = \case
   AccessFsMakeBlock -> lANDLOCK_ACCESS_FS_MAKE_BLOCK
   AccessFsMakeSym -> lANDLOCK_ACCESS_FS_MAKE_SYM
   AccessFsRefer -> lANDLOCK_ACCESS_FS_REFER
+  AccessFsTruncate -> lANDLOCK_ACCESS_FS_TRUNCATE
 
 -- | All 'AccessFsFlag' flags keyed by a Landlock ABI 'Version'.
 accessFsFlags :: [(Version, [AccessFsFlag])]
@@ -158,7 +173,8 @@ accessFsFlags =
   [ (v, [f | f <- [minBound ..], version f <= v])
     | v <-
         [ version1,
-          version2
+          version2,
+          version3
         ]
   ]
   where
@@ -177,6 +193,7 @@ accessFsFlags =
       AccessFsMakeBlock -> version1
       AccessFsMakeSym -> version1
       AccessFsRefer -> version2
+      AccessFsTruncate -> version3
 
 -- | Predicate for read-only 'AccessFsFlag' flags.
 accessFsFlagIsReadOnly :: AccessFsFlag -> Bool
@@ -195,6 +212,7 @@ accessFsFlagIsReadOnly = \case
   AccessFsMakeBlock -> False
   AccessFsMakeSym -> False
   AccessFsRefer -> False
+  AccessFsTruncate -> False
 
 -- | Flags passed to @landlock_create_ruleset@.
 --
