@@ -61,6 +61,7 @@ fromBits f b = filter (\a -> b .&. f a /= 0) [minBound .. maxBound]
 -- - 'AccessFsMakeFifo'
 -- - 'AccessFsMakeBlock'
 -- - 'AccessFsMakeSym'
+-- - 'AccessFsRefer'
 --
 -- __Warning:__ It is currently not possible to restrict some file-related
 -- actions acessible through these syscall families: @chdir@, @truncate@,
@@ -88,12 +89,12 @@ data AccessFsFlag = AccessFsExecute     -- ^ Execute a file.
                                         --   access right.  When linking or renaming a file, the destination directory
                                         --   hierarchy must also always have the same or a superset of restrictions of
                                         --   the source hierarchy.  If it is not the case, or if the domain doesn't
-                                        --   handle this access right, such actions are denied by default with errno
-                                        --   set to EXDEV.  Linking also requires a LANDLOCK_ACCESS_FS_MAKE_* access
+                                        --   handle this access right, such actions are denied by default with @errno@
+                                        --   set to @EXDEV@.  Linking also requires a @LANDLOCK_ACCESS_FS_MAKE_*@ access
                                         --   right on the destination directory, and renaming also requires a
-                                        --   LANDLOCK_ACCESS_FS_REMOVE_* access right on the source's (file or
-                                        --   directory) parent.  Otherwise, such actions are denied with errno set to
-                                        --   EACCES.  The EACCES errno prevails over EXDEV to let user space
+                                        --   @LANDLOCK_ACCESS_FS_REMOVE_*@ access right on the source's (file or
+                                        --   directory) parent.  Otherwise, such actions are denied with @errno@ set to
+                                        --   @EACCES@.  The @EACCES@ @errno@ prevails over @EXDEV@ to let user space
                                         --   efficiently deal with an unrecoverable error.
 
 -- Note: when adding new flags, this likely means a new ABI version is
