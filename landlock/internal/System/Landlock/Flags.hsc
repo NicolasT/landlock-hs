@@ -123,10 +123,27 @@ accessFsFlagToBit = \case
 
 -- | All 'AccessFsFlag' flags keyed by a Landlock ABI 'Version'.
 accessFsFlags :: [(Version, [AccessFsFlag])]
-accessFsFlags = [
-      (version1, [AccessFsExecute .. AccessFsMakeSym])
-    , (version2, [AccessFsExecute .. AccessFsRefer])
+accessFsFlags = [(v, [f | f <- [minBound..], version f <= v]) | v <- [
+      version1
+    , version2
     ]
+  ]
+  where
+    version = \case
+      AccessFsExecute -> version1
+      AccessFsWriteFile -> version1
+      AccessFsReadFile -> version1
+      AccessFsReadDir -> version1
+      AccessFsRemoveDir -> version1
+      AccessFsRemoveFile -> version1
+      AccessFsMakeChar -> version1
+      AccessFsMakeDir -> version1
+      AccessFsMakeReg -> version1
+      AccessFsMakeSock -> version1
+      AccessFsMakeFifo -> version1
+      AccessFsMakeBlock -> version1
+      AccessFsMakeSym -> version1
+      AccessFsRefer -> version2
 
 -- | Predicate for read-only 'AccessFsFlag' flags.
 accessFsFlagIsReadOnly :: AccessFsFlag -> Bool
@@ -145,7 +162,6 @@ accessFsFlagIsReadOnly = \case
     AccessFsMakeBlock -> False
     AccessFsMakeSym -> False
     AccessFsRefer -> False
-
 
 -- | Flags passed to @landlock_create_ruleset@.
 --
