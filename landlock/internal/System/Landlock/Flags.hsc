@@ -61,6 +61,7 @@ fromBits f b = filter (\a -> b .&. f a /= 0) [minBound .. maxBound]
 -- - 'AccessFsMakeFifo'
 -- - 'AccessFsMakeBlock'
 -- - 'AccessFsMakeSym'
+-- - 'AccessFsRefer'
 --
 -- __Warning:__ It is currently not possible to restrict some file-related
 -- actions acessible through these syscall families: @chdir@, @truncate@,
