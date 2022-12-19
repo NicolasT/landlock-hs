@@ -9,7 +9,7 @@ module Main (main) where
 import Control.Concurrent.Async (withAsync)
 import Control.Exception.Base (handleJust)
 import Control.Monad (unless)
-import Data.List (nub, sort)
+import Data.List (nub, sort, (\\))
 import Data.Proxy (Proxy (Proxy))
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
@@ -26,6 +26,7 @@ import System.Landlock
     isSupported,
     landlock,
     version1,
+    version2,
     withOpenPath,
   )
 import System.Landlock.Flags (CreateRulesetFlag)
@@ -79,6 +80,7 @@ tests =
   testGroup
     "Tests"
     [ properties,
+      unitTests,
       functionalTests,
       scenario withAsync
     ]
@@ -163,6 +165,21 @@ instance Arbitrary (Rule 'PathBeneath) where
 
 instance Arbitrary AccessFsFlag where
   arbitrary = arbitraryBoundedEnum
+
+unitTests :: TestTree
+unitTests =
+  testGroup
+    "Unit Tests"
+    [ testCase "lookup version1 accessFsFlags" $
+        lookup version1 accessFsFlags @?= Just [AccessFsExecute .. AccessFsMakeSym],
+      testCase "lookup version2 accessFsFlags" $
+        lookup version2 accessFsFlags @?= Just [AccessFsExecute .. AccessFsRefer],
+      testCase "ABI v2 introduced [AccessFsRefer]" $
+        (\\)
+          <$> lookup version2 accessFsFlags
+          <*> lookup version1 accessFsFlags
+          @?= Just [AccessFsRefer]
+    ]
 
 functionalTests :: TestTree
 functionalTests =
