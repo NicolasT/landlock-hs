@@ -4,8 +4,6 @@ Copy-Fields: some
 Distribution: jammy
 
 Hlint: True
-Hlint-Job: 9.2.4
-Hlint-Version: ^>=3.4
 
 Local-Ghc-Options:
   -Werror
