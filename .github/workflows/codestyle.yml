@@ -13,3 +13,26 @@ jobs:
         uses: actions/checkout@v2
       - name: ormolu
         uses: mrkkrp/ormolu-action@v8
+
+  cabal-fmt:
+    name: Lint Cabal project description using cabal-fmt
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Cache Cabal files
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+          key: ${{ runner.os }}-cabal
+
+      - name: Install cabal-fmt
+        run: |
+          cabal update
+          cabal install "cabal-fmt-0.1.6"
+
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Check formatting of Cabal project description
+        run: ~/.cabal/bin/cabal-fmt --Werror --check landlock/landlock.cabal psx/psx.cabal
