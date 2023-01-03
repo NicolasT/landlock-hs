@@ -1,0 +1,2 @@
+-- Disable (default) `-Werror` in the REPL
+:set -Wwarn

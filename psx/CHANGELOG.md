@@ -14,6 +14,8 @@
 
 * Minor stylistic changes to Cabal package description file.
 
+* Add a Cabal flag, `werror`, to enable compiler `-Werror` and friends.
+
 ## 0.1.0.0 -- 2022-08-24
 
 * First version. Released on an unsuspecting world.
