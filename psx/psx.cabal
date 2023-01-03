@@ -116,7 +116,7 @@ Test-Suite psx-test-threaded
   C-Sources:           test/detect-psx.c
   Include-Dirs:        test
   Build-Depends:       psx
-                     , base
+                     , base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
                      , async ^>=2.2.3
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
@@ -132,7 +132,7 @@ Test-Suite psx-test
   C-Sources:           test/detect-psx.c
   Include-Dirs:        test
   Build-Depends:       psx
-                     , base
+                     , base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
                      , async ^>=2.2.3
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
@@ -146,7 +146,7 @@ Test-Suite psx-test-no-psx
   C-Sources:           test/detect-psx.c
   Include-Dirs:        test
                        cbits
-  Build-Depends:       base
+  Build-Depends:       base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
                      , tasty ^>=1.4.1
                      , tasty-hunit ^>=0.10.0.3
   Other-Extensions:    CApiFFI
