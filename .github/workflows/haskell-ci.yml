@@ -8,9 +8,9 @@
 #
 # For more information, see https://github.com/haskell-CI/haskell-ci
 #
-# version: 0.15.20220826
+# version: 0.15.20221225
 #
-# REGENDATA ("0.15.20220826",["github","cabal.project"])
+# REGENDATA ("0.15.20221225",["github","cabal.project"])
 #
 name: Haskell-CI
 on:
@@ -125,7 +125,7 @@ jobs:
       - name: cache (tools)
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ matrix.compiler }}-tools-9b0e2571
+          key: ${{ runner.os }}-${{ matrix.compiler }}-tools-106d6240
           path: ~/.haskell-ci-tools
       - name: install cabal-plan
         run: |
@@ -138,10 +138,10 @@ jobs:
           cabal-plan --version
       - name: install hlint
         run: |
-          if [ $((HCNUMVER >= 90200 && HCNUMVER < 90400)) -ne 0 ] ; then HLINTVER=$(cd /tmp && (${CABAL} v2-install -v $ARG_COMPILER --dry-run hlint  --constraint='hlint ^>=3.4' |  perl -ne 'if (/\bhlint-(\d+(\.\d+)*)\b/) { print "$1"; last; }')); echo "HLint version $HLINTVER" ; fi
-          if [ $((HCNUMVER >= 90200 && HCNUMVER < 90400)) -ne 0 ] ; then if [ ! -e $HOME/.haskell-ci-tools/hlint-$HLINTVER/hlint ]; then echo "Downloading HLint version $HLINTVER"; mkdir -p $HOME/.haskell-ci-tools; curl --write-out 'Status Code: %{http_code} Redirects: %{num_redirects} Total time: %{time_total} Total Dsize: %{size_download}\n' --silent --location --output $HOME/.haskell-ci-tools/hlint-$HLINTVER.tar.gz "https://github.com/ndmitchell/hlint/releases/download/v$HLINTVER/hlint-$HLINTVER-x86_64-linux.tar.gz"; tar -xzv -f $HOME/.haskell-ci-tools/hlint-$HLINTVER.tar.gz -C $HOME/.haskell-ci-tools; fi ; fi
-          if [ $((HCNUMVER >= 90200 && HCNUMVER < 90400)) -ne 0 ] ; then mkdir -p $CABAL_DIR/bin && ln -sf "$HOME/.haskell-ci-tools/hlint-$HLINTVER/hlint" $CABAL_DIR/bin/hlint ; fi
-          if [ $((HCNUMVER >= 90200 && HCNUMVER < 90400)) -ne 0 ] ; then hlint --version ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then HLINTVER=$(cd /tmp && (${CABAL} v2-install -v $ARG_COMPILER --dry-run hlint  --constraint='hlint >=3.5 && <3.6' |  perl -ne 'if (/\bhlint-(\d+(\.\d+)*)\b/) { print "$1"; last; }')); echo "HLint version $HLINTVER" ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then if [ ! -e $HOME/.haskell-ci-tools/hlint-$HLINTVER/hlint ]; then echo "Downloading HLint version $HLINTVER"; mkdir -p $HOME/.haskell-ci-tools; curl --write-out 'Status Code: %{http_code} Redirects: %{num_redirects} Total time: %{time_total} Total Dsize: %{size_download}\n' --silent --location --output $HOME/.haskell-ci-tools/hlint-$HLINTVER.tar.gz "https://github.com/ndmitchell/hlint/releases/download/v$HLINTVER/hlint-$HLINTVER-x86_64-linux.tar.gz"; tar -xzv -f $HOME/.haskell-ci-tools/hlint-$HLINTVER.tar.gz -C $HOME/.haskell-ci-tools; fi ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then mkdir -p $CABAL_DIR/bin && ln -sf "$HOME/.haskell-ci-tools/hlint-$HLINTVER/hlint" $CABAL_DIR/bin/hlint ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then hlint --version ; fi
       - name: checkout
         uses: actions/checkout@v2
         with:
@@ -212,10 +212,10 @@ jobs:
           $CABAL v2-test $ARG_COMPILER $ARG_TESTS $ARG_BENCH all --test-show-details=direct
       - name: hlint
         run: |
-          if [ $((HCNUMVER >= 90200 && HCNUMVER < 90400)) -ne 0 ] ; then (cd ${PKGDIR_landlock} && hlint -XHaskell2010 src) ; fi
-          if [ $((HCNUMVER >= 90200 && HCNUMVER < 90400)) -ne 0 ] ; then (cd ${PKGDIR_landlock} && hlint -XHaskell2010 internal) ; fi
-          if [ $((HCNUMVER >= 90200 && HCNUMVER < 90400)) -ne 0 ] ; then (cd ${PKGDIR_landlock} && hlint -XHaskell2010 bin) ; fi
-          if [ $((HCNUMVER >= 90200 && HCNUMVER < 90400)) -ne 0 ] ; then (cd ${PKGDIR_psx} && hlint -XHaskell2010 src) ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then (cd ${PKGDIR_landlock} && hlint -XHaskell2010 src) ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then (cd ${PKGDIR_landlock} && hlint -XHaskell2010 internal) ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then (cd ${PKGDIR_landlock} && hlint -XHaskell2010 bin) ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then (cd ${PKGDIR_psx} && hlint -XHaskell2010 src) ; fi
       - name: cabal check
         run: |
           cd ${PKGDIR_landlock} || false
