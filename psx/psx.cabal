@@ -26,12 +26,14 @@ maintainer:         ikke@nicolast.be
 copyright:          (c) 2022 Nicolas Trangez
 category:           System
 stability:          alpha
-extra-source-files:
-  cbits/hs-psx.h
+extra-doc-files:
   cbits/psx/License
-  cbits/psx/psx_syscall.h
   CHANGELOG.md
   README.md
+
+extra-source-files:
+  cbits/hs-psx.h
+  cbits/psx/psx_syscall.h
   test/detect-psx.h
 
 tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2
