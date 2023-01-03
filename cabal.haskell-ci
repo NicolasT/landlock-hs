@@ -1,13 +1,15 @@
 Github-Patches: .github/workflows/haskell-ci.patch
-Copy-Fields: some
 
 Distribution: jammy
 
 Hlint: True
 
-Local-Ghc-Options:
-  -Werror
-  -optc=-Werror
+Raw-Project
+  Package landlock
+    Flags: +werror
+
+  Package psx
+    Flags: +werror
 
 Constraint-Set unix-2.7
   Constraints: unix ^>=2.7

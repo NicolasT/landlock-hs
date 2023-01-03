@@ -179,10 +179,10 @@ jobs:
           allow-newer: process-1.6.15.0:unix
 
           package landlock
-            ghc-options: -Werror -optc=-Werror
+            flags: +werror
 
           package psx
-            ghc-options: -Werror -optc=-Werror
+            flags: +werror
           EOF
           $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: $_ installed\n" unless /^(landlock|psx)$/; }' >> cabal.project.local
           cat cabal.project

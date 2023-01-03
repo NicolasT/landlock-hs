@@ -5,17 +5,9 @@ Allow-Newer:
   -- https://github.com/haskell/process/pull/260
   process-1.6.15.0:unix
 
--- Note: when making changes, they likely need to be applied to the
--- other local libraries as well (for some reason, unlike as documented,
--- having them at the top-level doesn't work as expected).
--- Furthermore, when making changes, the `Local-Ghc-Options` value in
--- `cabal.haskell-ci` must be updated as well.
+-- For non-Hackage builds, enable `-Werror` and friends
 Package landlock
-  Ghc-Options:
-    -Werror
-    -optc=-Werror
+  Flags: +werror
 
 Package psx
-  Ghc-Options:
-    -Werror
-    -optc=-Werror
+  Flags: +werror

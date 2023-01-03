@@ -20,6 +20,8 @@
 * Use `capi` foreign imports instead of `ccall` using the `CApiFFI` language
   extension.
 
+* Add a Cabal flag, `werror`, to enable compiler `-Werror` and friends.
+
 ## 0.2.0.1 -- 2022-08-24
 
 * Code-wise the same as version 0.2.0.0, but said version was incorrectly

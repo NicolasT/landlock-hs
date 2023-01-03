@@ -52,6 +52,11 @@ Flag landlocked
   Default:             True
   Manual:              True
 
+Flag werror
+  Description:         Turn compiler warnings into errors.
+  Default:             False
+  Manual:              True
+
 Common common-settings
   Default-Language:    Haskell2010
   Ghc-Options:
@@ -68,6 +73,17 @@ Common common-settings
     -Wall
     -Wextra
     -pedantic
+
+  if flag(werror)
+    Ghc-Options:
+      -Werror
+      -optc=-Werror
+    Cc-Options:
+      -Werror
+      -- hsc2hs triggers the following warnings
+      -Wno-error=overlength-strings
+      -Wno-error=type-limits
+      -Wno-error=variadic-macros
 
 Library
   Import:              common-settings
