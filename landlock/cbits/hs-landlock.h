@@ -10,15 +10,15 @@
 extern "C" {
 #endif
 
-long landlock_create_ruleset(const struct landlock_ruleset_attr *const attr,
-                             const size_t size,
-                             const __u32 flags);
-long landlock_add_rule(const int ruleset_fd,
-                       const enum landlock_rule_type rule_type,
-                       const void *const rule_attr,
-                       const __u32 flags);
-long landlock_restrict_self(const int ruleset_fd,
-                            const __u32 flags);
+long hs_landlock_create_ruleset(const struct landlock_ruleset_attr *const attr,
+                                const size_t size,
+                                const __u32 flags);
+long hs_landlock_add_rule(const int ruleset_fd,
+                          const enum landlock_rule_type rule_type,
+                          const void *const rule_attr,
+                          const __u32 flags);
+long hs_landlock_restrict_self(const int ruleset_fd,
+                               const __u32 flags);
 
 int hs_landlock_prctl(int option,
                       unsigned long arg2,
