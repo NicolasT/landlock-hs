@@ -176,8 +176,6 @@ jobs:
           echo "package psx" >> cabal.project
           echo "    ghc-options: -Werror=missing-methods" >> cabal.project
           cat >> cabal.project <<EOF
-          allow-newer: process-1.6.15.0:unix
-
           package landlock
             flags: +werror
 

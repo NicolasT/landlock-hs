@@ -1,10 +1,6 @@
 Packages: landlock
           psx
 
-Allow-Newer:
-  -- https://github.com/haskell/process/pull/260
-  process-1.6.15.0:unix
-
 -- For non-Hackage builds, enable `-Werror` and friends
 Package landlock
   Flags: +werror
