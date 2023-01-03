@@ -35,7 +35,7 @@ instance Storable LandlockRulesetAttr where
   poke ptr attr = do
       #{poke struct landlock_ruleset_attr, handled_access_fs} ptr (landlockRulesetAttrHandledAccessFs attr)
 
-foreign import capi unsafe "hs-landlock.h landlock_create_ruleset"
+foreign import capi unsafe "hs-landlock.h hs_landlock_create_ruleset"
   _landlock_create_ruleset :: Ptr LandlockRulesetAttr
                            -> #{type size_t}
                            -> #{type __u32}
@@ -48,7 +48,7 @@ landlock_create_ruleset :: Ptr LandlockRulesetAttr
 landlock_create_ruleset attr size flags =
     throwErrnoIfMinus1 "landlock_create_ruleset" $ _landlock_create_ruleset attr size flags
 
-foreign import capi unsafe "hs-landlock.h landlock_add_rule"
+foreign import capi unsafe "hs-landlock.h hs_landlock_add_rule"
   _landlock_add_rule :: #{type int}
                      -> #{type enum landlock_rule_type}
                      -> Ptr a
@@ -65,7 +65,7 @@ landlock_add_rule ruleset_fd rule_type rule_attr flags =
         throwErrnoIfMinus1 "landlock_add_rule" $
             _landlock_add_rule ruleset_fd rule_type rule_attr flags
 
-foreign import capi unsafe "hs-landlock.h landlock_restrict_self"
+foreign import capi unsafe "hs-landlock.h hs_landlock_restrict_self"
   _landlock_restrict_self :: #{type int}
                           -> #{type __u32}
                           -> IO #{type long}
