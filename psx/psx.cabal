@@ -1,10 +1,9 @@
-Cabal-Version:       2.2
-Build-Type:          Simple
-
-Name:                psx
-Version:             0.1.1.0
-Synopsis:            Integrate libpsx with the GHC RTS
-Description:
+cabal-version:      2.2
+build-type:         Simple
+name:               psx
+version:            0.1.1.0
+synopsis:           Integrate libpsx with the GHC RTS
+description:
   This library embeds @libpsx@ in a GHC Haskell-compiled application.
   .
   Note @libpsx@ performs some trickery with signal handling in a process.
@@ -17,75 +16,64 @@ Description:
   by default. Disable the @bundled-libpsx@ flag to use a system-provided
   version of the library, which must be from @libcap@ version 2.46 or higher.
   The license of the bundled library can be found in @cbits\/psx\/License@.
-Homepage:            https://github.com/NicolasT/landlock-hs
-Bug-Reports:         https://github.com/NicolasT/landlock-hs/issues
-License:             BSD-3-Clause
-License-File:        LICENSE
-Author:              Nicolas Trangez
-Maintainer:          ikke@nicolast.be
-Copyright:           (c) 2022 Nicolas Trangez
-Category:            System
-Stability:           alpha
 
-Extra-Source-Files:
-  CHANGELOG.md
-  README.md
+homepage:           https://github.com/NicolasT/landlock-hs
+bug-reports:        https://github.com/NicolasT/landlock-hs/issues
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Nicolas Trangez
+maintainer:         ikke@nicolast.be
+copyright:          (c) 2022 Nicolas Trangez
+category:           System
+stability:          alpha
+extra-source-files:
   cbits/hs-psx.h
   cbits/psx/License
   cbits/psx/psx_syscall.h
+  CHANGELOG.md
+  README.md
   test/detect-psx.h
 
-Tested-With:         GHC ==8.10.7
-                   , GHC ==9.0.2
-                   , GHC ==9.2.4
-                   , GHC ==9.4.2
+tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2
 
-Source-Repository head
-  Type:                git
-  Location:            https://github.com/NicolasT/landlock-hs.git
-  Subdir:              psx
-  Branch:              main
+source-repository head
+  type:     git
+  location: https://github.com/NicolasT/landlock-hs.git
+  subdir:   psx
+  branch:   main
 
-Flag bundled-libpsx
-  Description:         Use the bundled libpsx instead of a (potentially broken) system-provided version. See @cbits\/psx\/License@.
-  Default:             True
-  Manual:              True
+flag bundled-libpsx
+  description:
+    Use the bundled libpsx instead of a (potentially broken) system-provided version. See @cbits\/psx\/License@.
 
-Flag werror
-  Description:         Turn compiler warnings into errors.
-  Default:             False
-  Manual:              True
+  default:     True
+  manual:      True
 
-Common common-settings
-  Default-Language:    Haskell2010
-  Ghc-Options:
-    -Wall
-    -Wincomplete-uni-patterns
-    -Wincomplete-record-updates
-    -Wpartial-fields
-    -Wmissing-home-modules
-    -Widentities
-    -Wredundant-constraints
-    -Wcpp-undef
-    -Wmissing-export-lists
-  Cc-Options:
-    -Wall
-    -Wextra
-    -pedantic
+flag werror
+  description: Turn compiler warnings into errors.
+  default:     False
+  manual:      True
+
+common common-settings
+  default-language: Haskell2010
+  ghc-options:
+    -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
+    -Wpartial-fields -Wmissing-home-modules -Widentities
+    -Wredundant-constraints -Wcpp-undef -Wmissing-export-lists
+
+  cc-options:       -Wall -Wextra -pedantic
 
   if flag(werror)
-    Ghc-Options:
-      -Werror
-      -optc=-Werror
-    Cc-Options:
-      -Werror
-      -- hsc2hs triggers the following warnings
-      -Wno-error=overlength-strings
-      -Wno-error=type-limits
+    ghc-options: -Werror -optc=-Werror
+
+    -- Note: disable some warnings triggered by `hsc2hs` code
+    cc-options:
+      -Werror -Wno-error=overlength-strings -Wno-error=type-limits
       -Wno-error=variadic-macros
 
-Library
-  Import: common-settings
+library
+  import:           common-settings
+
   -- Despite this library not containing any Haskell code, and
   -- hence not really having any dependency on `base`, it is
   -- only *tested* on particular GHC versions (which we can tie
@@ -93,60 +81,68 @@ Library
   -- between this package functionality working as expected (cfr.
   -- the `sigfillset` wrapping) and the GHC RTS, it seems wise to
   -- restrict compatibility with said GHC version(s).
-  Exposed-Modules:     System.PSX
-  Hs-Source-Dirs:      src
-  Build-Depends:       base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
-  Include-Dirs:        cbits
-  Install-Includes:    hs-psx.h
-  C-Sources:           cbits/hs-psx.c
-  Ld-Options:          -Wl,-wrap,sigfillset -Wl,-undefined,__wrap_sigfillset
+  exposed-modules:  System.PSX
+  hs-source-dirs:   src
+  build-depends:    base >=4.14.2.0 && <4.17 || ^>=4.17
+  include-dirs:     cbits
+  install-includes: hs-psx.h
+  c-sources:        cbits/hs-psx.c
+  ld-options:
+    "-Wl,-wrap,sigfillset" "-Wl,-undefined,__wrap_sigfillset"
+
   if flag(bundled-libpsx)
-    C-Sources:         cbits/psx/psx.c
-    Cc-Options:        -DBUNDLED_LIBPSX
-    Ld-Options:        -pthread -Wl,-wrap,pthread_create
+    c-sources:  cbits/psx/psx.c
+    cc-options: -DBUNDLED_LIBPSX
+    ld-options: -pthread "-Wl,-wrap,pthread_create"
+
   else
-    Pkgconfig-Depends: libpsx
+    pkgconfig-depends: libpsx
 
-Test-Suite psx-test-threaded
-  Import:              common-settings
-  Type:                exitcode-stdio-1.0
-  Hs-Source-Dirs:      test
-  Main-Is:             psx-test-threaded.hs
-  Other-Modules:       TestCases
-  C-Sources:           test/detect-psx.c
-  Include-Dirs:        test
-  Build-Depends:       psx
-                     , base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
-                     , async ^>=2.2.3
-                     , tasty ^>=1.4.1
-                     , tasty-hunit ^>=0.10.0.3
-  Ghc-Options:         -threaded -with-rtsopts -N2
-  Other-Extensions:    CApiFFI
+test-suite psx-test-threaded
+  import:           common-settings
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          psx-test-threaded.hs
+  other-modules:    TestCases
+  c-sources:        test/detect-psx.c
+  include-dirs:     test
+  build-depends:
+    , async        ^>=2.2.3
+    , base         >=4.14.2.0  && <4.17 || ^>=4.17
+    , psx
+    , tasty        ^>=1.4.1
+    , tasty-hunit  ^>=0.10.0.3
 
-Test-Suite psx-test
-  Import:              common-settings
-  Type:                exitcode-stdio-1.0
-  Hs-Source-Dirs:      test
-  Main-Is:             psx-test.hs
-  Other-Modules:       TestCases
-  C-Sources:           test/detect-psx.c
-  Include-Dirs:        test
-  Build-Depends:       psx
-                     , base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
-                     , async ^>=2.2.3
-                     , tasty ^>=1.4.1
-                     , tasty-hunit ^>=0.10.0.3
-  Other-Extensions:    CApiFFI
+  ghc-options:      -threaded -with-rtsopts -N2
+  other-extensions: CApiFFI
 
-Test-Suite psx-test-no-psx
-  Import:              common-settings
-  Type:                exitcode-stdio-1.0
-  Hs-Source-Dirs:      test
-  Main-Is:             psx-test-no-psx.hs
-  C-Sources:           test/detect-psx.c
-  Include-Dirs:        test
-                       cbits
-  Build-Depends:       base ^>=4.14.2.0 || ^>=4.15 || ^>=4.16 || ^>=4.17
-                     , tasty ^>=1.4.1
-                     , tasty-hunit ^>=0.10.0.3
-  Other-Extensions:    CApiFFI
+test-suite psx-test
+  import:           common-settings
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          psx-test.hs
+  other-modules:    TestCases
+  c-sources:        test/detect-psx.c
+  include-dirs:     test
+  build-depends:
+    , async        ^>=2.2.3
+    , base         >=4.14.2.0  && <4.17 || ^>=4.17
+    , psx
+    , tasty        ^>=1.4.1
+    , tasty-hunit  ^>=0.10.0.3
+
+  other-extensions: CApiFFI
+
+test-suite psx-test-no-psx
+  import:           common-settings
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          psx-test-no-psx.hs
+  c-sources:        test/detect-psx.c
+  include-dirs:     test cbits
+  build-depends:
+    , base         >=4.14.2.0  && <4.17 || ^>=4.17
+    , tasty        ^>=1.4.1
+    , tasty-hunit  ^>=0.10.0.3
+
+  other-extensions: CApiFFI
