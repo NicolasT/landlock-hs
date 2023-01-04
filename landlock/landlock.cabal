@@ -147,6 +147,7 @@ test-suite landlock-test
     , landlock
     , landlock-internal
     , process                  ^>=1.6.9.0
+    , QuickCheck               ^>=2.14.2
     , quickcheck-classes-base  ^>=0.6.2.0
     , tasty                    ^>=1.4.1
     , tasty-hunit              ^>=0.10.0.3

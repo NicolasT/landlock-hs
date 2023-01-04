@@ -29,12 +29,17 @@ import System.Landlock
     version2,
     withOpenPath,
   )
-import System.Landlock.Flags (CreateRulesetFlag)
+import System.Landlock.Flags
+  ( CreateRulesetFlag,
+    accessFsFlagToBit,
+    createRulesetFlagToBit,
+  )
 import System.Landlock.Rules (Rule, RuleType (..), pathBeneath)
 import System.Landlock.Syscalls (LandlockRulesetAttr (..))
 import System.Landlock.Version (Version (..))
 import System.Posix.Types (Fd)
 import System.Process (CreateProcess (..), proc, readCreateProcessWithExitCode)
+import Test.QuickCheck ((=/=), (===))
 import Test.QuickCheck.Classes.Base
   ( Laws (..),
     boundedEnumLaws,
@@ -137,10 +142,17 @@ properties =
           [ eqLaws (Proxy @Version),
             showLaws (Proxy @Version),
             ordLaws (Proxy @Version)
-          ]
+          ],
+      testProperty "accessFsFlagToBit is different for different flags" $
+        mapEq accessFsFlagToBit,
+      testProperty "createRulesetFlagToBit is different for different flags" $
+        mapEq createRulesetFlagToBit
     ]
   where
     lawsToTestTree laws = testGroup (lawsTypeclass laws) $ flip map (lawsProperties laws) $ uncurry testProperty
+    mapEq fn a b =
+      let cmp = if a == b then (===) else (=/=)
+       in fn a `cmp` fn b
 
 instance Arbitrary Version where
   arbitrary = Version <$> arbitrary
@@ -178,7 +190,13 @@ unitTests =
         (\\)
           <$> lookup version2 accessFsFlags
           <*> lookup version1 accessFsFlags
-          @?= Just [AccessFsRefer]
+          @?= Just [AccessFsRefer],
+      testCase "accessFsFlagToBit is unique for all AccessFsFlags" $
+        length (nub (sort (map accessFsFlagToBit [minBound .. maxBound])))
+          @?= length [minBound :: AccessFsFlag .. maxBound],
+      testCase "createRulesetFlagToBit is unique for all CreateRulesetFlags" $
+        length (nub (sort (map createRulesetFlagToBit [minBound .. maxBound])))
+          @?= length [minBound :: CreateRulesetFlag .. maxBound]
     ]
 
 functionalTests :: TestTree
