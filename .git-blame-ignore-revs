@@ -2,3 +2,5 @@
 cf30c5db133ddb9341839ae83aec18a5e4fd1dcc
 # chore: format Cabal project descriptions using `cabal-fmt`
 f050a994995a9fcb08beedc52c31cd1bc36f78e5
+# chore: reformat new Haskell modules
+2596b7990a450a79d15d25bb94bdaedf5ba34a8e
