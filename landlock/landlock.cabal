@@ -90,6 +90,7 @@ library landlock-internal
   import:             common-settings
   exposed-modules:
     System.Landlock.Flags
+    System.Landlock.Hsc
     System.Landlock.OpenPath
     System.Landlock.Rules
     System.Landlock.Syscalls

@@ -7,28 +7,27 @@ module System.Landlock.OpenPath (
     , defaultOpenPathFlags
     ) where
 
-#define _GNU_SOURCE
-
-#include <fcntl.h>
-
 import Control.Monad.Catch (MonadMask, bracket)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Bits ((.|.))
-import Data.Int (Int32)
 import Foreign.C.String (CString, withCString)
+import Foreign.C.Types (CInt(..))
 import System.Posix.Error (throwErrnoPathIfMinus1Retry)
 import System.Posix.IO (closeFd)
 import System.Posix.Types (Fd)
 
+import System.Landlock.Hsc (
+    aT_FDCWD, o_CLOEXEC, o_DIRECTORY, o_NOFOLLOW, o_PATH, o_RDONLY)
+
 foreign import capi unsafe "fcntl.h openat"
-  _openat :: #{type int}
+  _openat :: CInt
          -> CString
-         -> #{type int}
-         -> IO #{type int}
+         -> CInt
+         -> IO CInt
 
 openat :: Fd
        -> FilePath
-       -> #{type int}
+       -> CInt
        -> IO Fd
 openat dirfd pathname flags = withCString pathname $ \pathnamep -> do
     fd <- throwErrnoPathIfMinus1Retry "openat" pathname $ _openat (fromIntegral dirfd) pathnamep flags
@@ -68,7 +67,7 @@ withOpenPath :: (MonadIO m, MonadMask m)
              -> OpenPathFlags  -- ^ Flag settings to pass.
              -> (Fd -> m a)  -- ^ Action to call with a file descriptor to the given path.
              -> m a  -- ^ Result of the invoked action.
-withOpenPath = withOpenPathAt (fromIntegral (#{const AT_FDCWD} :: #{type int}))
+withOpenPath = withOpenPathAt (fromIntegral aT_FDCWD)
 
 -- | Perform an action with a path @openat@ed using @O_PATH@.
 --
@@ -87,9 +86,9 @@ withOpenPathAt :: (MonadIO m, MonadMask m)
                -> m a  -- ^ Result of the invoked action.
 withOpenPathAt dirfd pathname flags = bracket (liftIO $ openat dirfd pathname flags') (liftIO . closeFd)
   where
-    flags' = foldr (.|.) 0 [ #{const O_PATH}
-                           , #{const O_RDONLY}
-                           , if directory flags then #{const O_DIRECTORY} else 0
-                           , if nofollow flags then #{const O_NOFOLLOW} else 0
-                           , if cloexec flags then #{const O_CLOEXEC} else 0
+    flags' = foldr (.|.) 0 [ o_PATH
+                           , o_RDONLY
+                           , if directory flags then o_DIRECTORY else 0
+                           , if nofollow flags then o_NOFOLLOW else 0
+                           , if cloexec flags then o_CLOEXEC else 0
                            ]

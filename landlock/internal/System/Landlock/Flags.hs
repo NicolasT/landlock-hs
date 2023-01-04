@@ -17,10 +17,27 @@ module System.Landlock.Flags (
     , addRuleFlagToBit
     ) where
 
-#include "linux/landlock.h"
-
 import Data.Bits (Bits, (.|.), (.&.))
 
+import System.Landlock.Hsc (
+      U32
+    , U64
+    , lANDLOCK_CREATE_RULESET_VERSION
+    , lANDLOCK_ACCESS_FS_EXECUTE
+    , lANDLOCK_ACCESS_FS_WRITE_FILE
+    , lANDLOCK_ACCESS_FS_READ_FILE
+    , lANDLOCK_ACCESS_FS_READ_DIR
+    , lANDLOCK_ACCESS_FS_REMOVE_DIR
+    , lANDLOCK_ACCESS_FS_REMOVE_FILE
+    , lANDLOCK_ACCESS_FS_MAKE_CHAR
+    , lANDLOCK_ACCESS_FS_MAKE_DIR
+    , lANDLOCK_ACCESS_FS_MAKE_REG
+    , lANDLOCK_ACCESS_FS_MAKE_SOCK
+    , lANDLOCK_ACCESS_FS_MAKE_FIFO
+    , lANDLOCK_ACCESS_FS_MAKE_BLOCK
+    , lANDLOCK_ACCESS_FS_MAKE_SYM
+    , lANDLOCK_ACCESS_FS_REFER
+    )
 import System.Landlock.Version (Version, version1, version2)
 
 -- | Fold a set of flags into a bitset/number.
@@ -104,22 +121,22 @@ data AccessFsFlag = AccessFsExecute     -- ^ Execute a file.
   deriving (Show, Eq, Enum, Bounded, Ord)
 
 -- | Retrieve a number with the appropriate 'AccessFsFlag' bit set.
-accessFsFlagToBit :: Num a => AccessFsFlag -> a
+accessFsFlagToBit :: AccessFsFlag -> U64
 accessFsFlagToBit = \case
-    AccessFsExecute -> #{const LANDLOCK_ACCESS_FS_EXECUTE}
-    AccessFsWriteFile -> #{const LANDLOCK_ACCESS_FS_WRITE_FILE}
-    AccessFsReadFile -> #{const LANDLOCK_ACCESS_FS_READ_FILE}
-    AccessFsReadDir -> #{const LANDLOCK_ACCESS_FS_READ_DIR}
-    AccessFsRemoveDir -> #{const LANDLOCK_ACCESS_FS_REMOVE_DIR}
-    AccessFsRemoveFile -> #{const LANDLOCK_ACCESS_FS_REMOVE_FILE}
-    AccessFsMakeChar -> #{const LANDLOCK_ACCESS_FS_MAKE_CHAR}
-    AccessFsMakeDir -> #{const LANDLOCK_ACCESS_FS_MAKE_DIR}
-    AccessFsMakeReg -> #{const LANDLOCK_ACCESS_FS_MAKE_REG}
-    AccessFsMakeSock -> #{const LANDLOCK_ACCESS_FS_MAKE_SOCK}
-    AccessFsMakeFifo -> #{const LANDLOCK_ACCESS_FS_MAKE_FIFO}
-    AccessFsMakeBlock -> #{const LANDLOCK_ACCESS_FS_MAKE_BLOCK}
-    AccessFsMakeSym -> #{const LANDLOCK_ACCESS_FS_MAKE_SYM}
-    AccessFsRefer -> #{const LANDLOCK_ACCESS_FS_REFER}
+    AccessFsExecute -> lANDLOCK_ACCESS_FS_EXECUTE
+    AccessFsWriteFile -> lANDLOCK_ACCESS_FS_WRITE_FILE
+    AccessFsReadFile -> lANDLOCK_ACCESS_FS_READ_FILE
+    AccessFsReadDir -> lANDLOCK_ACCESS_FS_READ_DIR
+    AccessFsRemoveDir -> lANDLOCK_ACCESS_FS_REMOVE_DIR
+    AccessFsRemoveFile -> lANDLOCK_ACCESS_FS_REMOVE_FILE
+    AccessFsMakeChar -> lANDLOCK_ACCESS_FS_MAKE_CHAR
+    AccessFsMakeDir -> lANDLOCK_ACCESS_FS_MAKE_DIR
+    AccessFsMakeReg -> lANDLOCK_ACCESS_FS_MAKE_REG
+    AccessFsMakeSock -> lANDLOCK_ACCESS_FS_MAKE_SOCK
+    AccessFsMakeFifo -> lANDLOCK_ACCESS_FS_MAKE_FIFO
+    AccessFsMakeBlock -> lANDLOCK_ACCESS_FS_MAKE_BLOCK
+    AccessFsMakeSym -> lANDLOCK_ACCESS_FS_MAKE_SYM
+    AccessFsRefer -> lANDLOCK_ACCESS_FS_REFER
 
 -- | All 'AccessFsFlag' flags keyed by a Landlock ABI 'Version'.
 accessFsFlags :: [(Version, [AccessFsFlag])]
@@ -171,9 +188,9 @@ accessFsFlagIsReadOnly = \case
 data CreateRulesetFlag = CreateRulesetVersion
   deriving (Show, Eq, Enum, Bounded)
 
-createRulesetFlagToBit :: Num a => CreateRulesetFlag -> a
+createRulesetFlagToBit :: CreateRulesetFlag -> U32
 createRulesetFlagToBit = \case
-    CreateRulesetVersion -> #{const LANDLOCK_CREATE_RULESET_VERSION}
+    CreateRulesetVersion -> lANDLOCK_CREATE_RULESET_VERSION
 
 -- | Flags passed to @landlock_restrict_self@.
 --
@@ -182,7 +199,7 @@ createRulesetFlagToBit = \case
 data RestrictSelfFlag
   deriving (Show, Eq)
 
-restrictSelfFlagToBit :: RestrictSelfFlag -> a
+restrictSelfFlagToBit :: RestrictSelfFlag -> U32
 restrictSelfFlagToBit = \case {}
 
 -- | Flags passed to @landlock_add_rule@.
@@ -192,5 +209,5 @@ restrictSelfFlagToBit = \case {}
 data AddRuleFlag
   deriving (Show, Eq)
 
-addRuleFlagToBit :: AddRuleFlag -> a
+addRuleFlagToBit :: AddRuleFlag -> U32
 addRuleFlagToBit = \case {}

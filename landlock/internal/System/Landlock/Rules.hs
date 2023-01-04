@@ -13,16 +13,20 @@ module System.Landlock.Rules (
     , AccessFsFlag(..)
     ) where
 
-#include <sys/types.h>
-
-#include "linux/landlock.h"
-
-import Data.Int (Int32)
-import Data.Word (Word32, Word64)
 import Foreign.Storable (Storable(..))
 import System.Posix.Types (Fd)
 
 import System.Landlock.Flags (AccessFsFlag(..), accessFsFlagToBit, fromBits, toBits)
+import System.Landlock.Hsc (
+      Landlock_rule_type
+    , lANDLOCK_RULE_PATH_BENEATH
+    , landlock_path_beneath_attr_size
+    , landlock_path_beneath_attr_alignment
+    , landlock_path_beneath_attr_peek_allowed_access
+    , landlock_path_beneath_attr_poke_allowed_access
+    , landlock_path_beneath_attr_peek_parent_fd
+    , landlock_path_beneath_attr_poke_parent_fd
+    )
 
 -- | Kind of 'Rule's.
 data RuleType = PathBeneath
@@ -37,22 +41,22 @@ deriving instance Show (Rule a)
 deriving instance Eq (Rule a)
 
 -- | Retrieve the @enum landlock_rule_type@ value of a given 'Rule'.
-ruleType :: Rule a -> #{type enum landlock_rule_type}
+ruleType :: Rule a -> Landlock_rule_type
 ruleType = \case
-    PathBeneathRule{} -> #{const LANDLOCK_RULE_PATH_BENEATH}
+    PathBeneathRule{} -> lANDLOCK_RULE_PATH_BENEATH
 
 instance Storable (Rule 'PathBeneath) where
-    sizeOf _ = #{size struct landlock_path_beneath_attr}
-    alignment _ = #{alignment struct landlock_path_beneath_attr}
+    sizeOf _ = landlock_path_beneath_attr_size
+    alignment _ = landlock_path_beneath_attr_alignment
     peek ptr = do
-        allowedAccess <- #{peek struct landlock_path_beneath_attr, allowed_access} ptr :: IO #{type __u64}
-        parentFd <- #{peek struct landlock_path_beneath_attr, parent_fd} ptr :: IO #{type __s32}
+        allowedAccess <- landlock_path_beneath_attr_peek_allowed_access ptr
+        parentFd <- landlock_path_beneath_attr_peek_parent_fd ptr
         return $ PathBeneathRule (fromBits accessFsFlagToBit allowedAccess) (fromIntegral parentFd)
     poke ptr (PathBeneathRule flags fd) = do
-        let allowedAccess = toBits accessFsFlagToBit flags :: #{type __u64}
-            parentFd = fromIntegral fd :: #{type __s32}
-        #{poke struct landlock_path_beneath_attr, allowed_access} ptr allowedAccess
-        #{poke struct landlock_path_beneath_attr, parent_fd} ptr parentFd
+        let allowedAccess = toBits accessFsFlagToBit flags
+            parentFd = fromIntegral fd
+        landlock_path_beneath_attr_poke_allowed_access ptr allowedAccess
+        landlock_path_beneath_attr_poke_parent_fd ptr parentFd
 
 -- | Construct a path hierarchy rule definition.
 --
