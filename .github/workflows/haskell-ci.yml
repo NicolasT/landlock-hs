@@ -176,11 +176,8 @@ jobs:
           echo "package psx" >> cabal.project
           echo "    ghc-options: -Werror=missing-methods" >> cabal.project
           cat >> cabal.project <<EOF
-          package landlock
-            flags: +werror
-
-          package psx
-            flags: +werror
+          constraints: landlock +werror
+          constraints: psx +werror
           EOF
           $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: $_ installed\n" unless /^(landlock|psx)$/; }' >> cabal.project.local
           cat cabal.project

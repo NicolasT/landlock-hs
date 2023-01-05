@@ -2,8 +2,6 @@ Packages: landlock
           psx
 
 -- For non-Hackage builds, enable `-Werror` and friends
-Package landlock
-  Flags: +werror
-
-Package psx
-  Flags: +werror
+Constraints:
+    landlock +werror
+  , psx +werror

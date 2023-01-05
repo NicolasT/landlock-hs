@@ -4,13 +4,6 @@ Distribution: jammy
 
 Hlint: True
 
-Raw-Project
-  Package landlock
-    Flags: +werror
-
-  Package psx
-    Flags: +werror
-
 Constraint-Set unix-2.7
   Constraints: unix ^>=2.7
   Tests:       True
