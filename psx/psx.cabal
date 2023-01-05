@@ -86,7 +86,7 @@ library
   exposed-modules:  System.PSX
   hs-source-dirs:   src
   build-depends:
-    base ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    base ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
 
   include-dirs:     cbits
   install-includes: hs-psx.h
@@ -112,7 +112,7 @@ test-suite psx-test-threaded
   include-dirs:     test
   build-depends:
     , async        ^>=2.2.3
-    , base         ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    , base         ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , psx
     , tasty        ^>=1.4.1
     , tasty-hunit  ^>=0.10.0.3
@@ -130,7 +130,7 @@ test-suite psx-test
   include-dirs:     test
   build-depends:
     , async        ^>=2.2.3
-    , base         ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    , base         ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , psx
     , tasty        ^>=1.4.1
     , tasty-hunit  ^>=0.10.0.3
@@ -145,7 +145,7 @@ test-suite psx-test-no-psx
   c-sources:        test/detect-psx.c
   include-dirs:     test cbits
   build-depends:
-    , base         ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    , base         ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , tasty        ^>=1.4.1
     , tasty-hunit  ^>=0.10.0.3
 
