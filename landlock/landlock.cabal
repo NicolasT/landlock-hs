@@ -37,7 +37,7 @@ extra-source-files:
   cbits/hs-landlock.h
   cbits/linux/landlock.h
 
-tested-with:        GHC ==8.10.5 || ==9.0.1 || ==9.2.2 || ==9.4.1
+tested-with:        GHC ==8.10.1 || ==9.0.1 || ==9.2.1 || ==9.4.1
 
 source-repository head
   type:     git
@@ -76,7 +76,7 @@ library
   import:           common-settings
   exposed-modules:  System.Landlock
   build-depends:
-    , base               ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    , base               ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , exceptions         ^>=0.10.4
     , landlock-internal
     , unix               ^>=2.7.2.2  || ^>=2.8.0.0
@@ -99,7 +99,7 @@ library landlock-internal
   include-dirs:       cbits
   c-sources:          cbits/hs-landlock.c
   build-depends:
-    , base        ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    , base        ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , exceptions  ^>=0.10.4
     , psx         ^>=0.1.0.0
     , unix        ^>=2.7.2.2  || ^>=2.8.0.0
@@ -128,7 +128,7 @@ executable landlocked
   autogen-modules: Paths_landlock
   hs-source-dirs:  bin
   build-depends:
-    , base                  ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    , base                  ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , exceptions            ^>=0.10.4
     , landlock
     , optparse-applicative  ^>=0.16.1.0 || ^>=0.17.0.0
@@ -142,7 +142,7 @@ test-suite landlock-test
   other-modules:    ThreadedScenario
   build-depends:
     , async                    ^>=2.2.3
-    , base                     ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    , base                     ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , filepath                 ^>=1.4.2.1
     , landlock
     , landlock-internal
@@ -168,7 +168,7 @@ test-suite landlock-test-threaded
   other-modules:    ThreadedScenario
   build-depends:
     , async        ^>=2.2.3
-    , base         ^>=4.14.2.0 || ^>=4.15.0.0 || ^>=4.16.1.0 || ^>=4.17.0.0
+    , base         ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , landlock
     , tasty        ^>=1.4.1
     , tasty-hunit  ^>=0.10.0.3
