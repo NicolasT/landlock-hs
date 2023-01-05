@@ -334,5 +334,6 @@ jobs:
     - run: cabal-plan-bounds plans/*.json -c landlock/landlock.cabal -c psx/psx.cabal
     - run: ~/.cabal/bin/cabal-fmt --inplace landlock/landlock.cabal psx/psx.cabal
 
-    - run: git diff landlock/landlock.cabal
-    - run: git diff psx/psx.cabal
+    - run: git diff landlock/landlock.cabal psx/psx.cabal
+
+    - run: git diff-files --quiet landlock/landlock.cabal psx/psx.cabal || exit 1
