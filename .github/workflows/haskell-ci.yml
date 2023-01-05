@@ -202,7 +202,6 @@ jobs:
       - name: build
         run: |
           $CABAL v2-build $ARG_COMPILER $ARG_TESTS $ARG_BENCH all --write-ghc-environment-files=always
-          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER.json
       - name: tests
         run: |
           $CABAL v2-test $ARG_COMPILER $ARG_TESTS $ARG_BENCH all --test-show-details=direct
@@ -225,7 +224,6 @@ jobs:
         run: |
           rm -f cabal.project.local
           $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks all
-          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-unconstrained.json
       - name: prepare for constraint sets
         run: |
           rm -f cabal.project.local
@@ -233,25 +231,21 @@ jobs:
         run: |
           if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='optparse-applicative ^>=0.17' --dependencies-only -j2 all ; fi
           if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='optparse-applicative ^>=0.17' all ; fi
-          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-optparse-applicative-0.17.json; fi
       - name: constraint set optparse-applicative-0.16
         run: |
           if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='optparse-applicative ^>=0.16.1.0' --dependencies-only -j2 all ; fi
           if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='optparse-applicative ^>=0.16.1.0' all ; fi
-          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-optparse-applicative-0.16.json; fi
       - name: constraint set unix-2.8
         run: |
           $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.8' --dependencies-only -j2 all
           $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.8' all
           $CABAL v2-test $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.8' all
-          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-unix-2.8.json
       - name: constraint set unix-2.7
         run: |
           $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.7' --dependencies-only -j2 all
           $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.7' all
           $CABAL v2-test $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.7' all
-          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-unix-2.7.json
-      - name: constraint set lower-bounds
+      - name: constraint set lower-bounds-landlock
         run: |
           if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
           ' --constraint='directory ==1.3.6.0
@@ -281,46 +275,11 @@ jobs:
           ' --constraint='tasty-quickcheck ==0.10.1.2
           ' --constraint='temporary ==1.3
           ' --constraint='unix ==2.7.2.2' all ; fi
-          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-lower-bounds.json
-
-      - name: Upload build plan as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: plans
-          path: /tmp/plans/plan-*.json
-
-  bounds:
-    runs-on: ubuntu-latest
-    name: Calculate cabal bounds
-    needs:
-    - linux
-    steps:
-    - name: Cache Cabal files
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cabal/packages
-          ~/.cabal/store
-        key: ${{ runner.os }}-cabal
-
-    - name: Install cabal-fmt
-      run: |
-        cabal update
-        cabal install "cabal-fmt-0.1.6"
-
-    - uses: actions/checkout@v3
-    - name: Fetch cabal-plan-bounds
-      run: |
-        curl -L https://github.com/nomeata/cabal-plan-bounds/releases/latest/download/cabal-plan-bounds.linux.gz | gunzip  > /usr/local/bin/cabal-plan-bounds
-        chmod +x /usr/local/bin/cabal-plan-bounds
-    - name: Load plans
-      uses: actions/download-artifact@v3
-      with:
-        name: plans
-        path: plans
-
-    - run: cabal-plan-bounds plans/*.json -c landlock/landlock.cabal -c psx/psx.cabal
-    - run: ~/.cabal/bin/cabal-fmt --inplace landlock/landlock.cabal psx/psx.cabal
-
-    - run: git diff landlock/landlock.cabal
-    - run: git diff psx/psx.cabal
+      - name: constraint set lower-bounds-psx
+        run: |
+          if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
+          ' --constraint='tasty ==1.4.1
+          ' --constraint='tasty-hunit ==0.10.0.3' --dependencies-only -j2 all ; fi
+          if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
+          ' --constraint='tasty ==1.4.1
+          ' --constraint='tasty-hunit ==0.10.0.3' all ; fi
