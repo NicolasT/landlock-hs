@@ -253,7 +253,7 @@ jobs:
           mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-unix-2.7.json
       - name: constraint set lower-bounds
         run: |
-          if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='async ==2.2.3
+          if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
           ' --constraint='directory ==1.3.6.0
           ' --constraint='exceptions ==0.10.4
           ' --constraint='filepath ==1.4.2.1
@@ -266,7 +266,7 @@ jobs:
           ' --constraint='tasty-quickcheck ==0.10.1.2
           ' --constraint='temporary ==1.3
           ' --constraint='unix ==2.7.2.2' --dependencies-only -j2 all ; fi
-          if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='async ==2.2.3
+          if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
           ' --constraint='directory ==1.3.6.0
           ' --constraint='exceptions ==0.10.4
           ' --constraint='filepath ==1.4.2.1

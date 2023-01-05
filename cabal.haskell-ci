@@ -1,4 +1,6 @@
-Github-Patches: .github/workflows/haskell-ci.patch
+Github-Patches:
+  .github/workflows/haskell-ci.patch
+  .github/workflows/haskell-ci-cabal-plan-bounds.patch
 
 Distribution: jammy
 
@@ -6,6 +8,7 @@ Hlint: True
 
 Constraint-Set lower-bounds
   Ghc: ^>=8.10
+  Tests: True
 
   Constraints:
       async ==2.2.3
