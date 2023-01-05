@@ -1,11 +1,11 @@
-commit 38e9f8bb2de32d407b7b86a53b1a91492ea7f9f0
+commit 1f248db74b94eb7c7ca383bd5ab5908d4cde2953
 Author: Nicolas Trangez <ikke@nicolast.be>
-Date:   Thu Jan 5 18:04:32 2023 +0100
+Date:   Thu Jan 5 19:09:42 2023 +0100
 
     Stash
 
 diff --git a/.github/workflows/haskell-ci.yml b/.github/workflows/haskell-ci.yml
-index 9db2c94..f461258 100644
+index 6f30d70..1b1d143 100644
 --- a/.github/workflows/haskell-ci.yml
 +++ b/.github/workflows/haskell-ci.yml
 @@ -202,6 +202,7 @@ jobs:
@@ -48,8 +48,8 @@ index 9db2c94..f461258 100644
 +          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-unix-2.7.json
        - name: constraint set lower-bounds
          run: |
-           if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='async ==2.2.3
-@@ -273,3 +279,33 @@ jobs:
+           if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
+@@ -275,3 +281,46 @@ jobs:
            ' --constraint='tasty-quickcheck ==0.10.1.2
            ' --constraint='temporary ==1.3
            ' --constraint='unix ==2.7.2.2' all ; fi
@@ -67,6 +67,19 @@ index 9db2c94..f461258 100644
 +    needs:
 +    - linux
 +    steps:
++    - name: Cache Cabal files
++      uses: actions/cache@v3
++      with:
++        path: |
++          ~/.cabal/packages
++          ~/.cabal/store
++        key: ${{ runner.os }}-cabal
++
++    - name: Install cabal-fmt
++      run: |
++        cabal update
++        cabal install "cabal-fmt-0.1.6"
++
 +    - uses: actions/checkout@v3
 +    - name: Fetch cabal-plan-bounds
 +      run: |
@@ -78,8 +91,8 @@ index 9db2c94..f461258 100644
 +        name: plans
 +        path: plans
 +
-+    - run: cabal-plan-bounds plans/*.json -c landlock/landlock.cabal
-+    - run: cabal-plan-bounds plans/*.json -c psx/psx.cabal
++    - run: cabal-plan-bounds plans/*.json -c landlock/landlock.cabal -c psx/psx.cabal
++    - run: ~/.cabal/bin/cabal-fmt --inplace landlock/landlock.cabal psx/psx.cabal
 +
 +    - run: git diff landlock/landlock.cabal
 +    - run: git diff psx/psx.cabal
