@@ -1,11 +1,11 @@
-commit 1f248db74b94eb7c7ca383bd5ab5908d4cde2953
+commit 72a24fee729f1a5d50b8fac9a2efb03eb79a6015
 Author: Nicolas Trangez <ikke@nicolast.be>
-Date:   Thu Jan 5 19:09:42 2023 +0100
+Date:   Thu Jan 5 19:15:48 2023 +0100
 
     Stash
 
 diff --git a/.github/workflows/haskell-ci.yml b/.github/workflows/haskell-ci.yml
-index 6f30d70..1b1d143 100644
+index 1b25f7a..0222dfc 100644
 --- a/.github/workflows/haskell-ci.yml
 +++ b/.github/workflows/haskell-ci.yml
 @@ -202,6 +202,7 @@ jobs:
@@ -46,14 +46,36 @@ index 6f30d70..1b1d143 100644
            $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.7' all
            $CABAL v2-test $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='unix ^>=2.7' all
 +          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-unix-2.7.json
-       - name: constraint set lower-bounds
+       - name: constraint set lower-bounds-landlock
          run: |
            if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
-@@ -275,3 +281,46 @@ jobs:
+@@ -260,7 +266,7 @@ jobs:
+           ' --constraint='tasty-hunit ==0.10.0.3
            ' --constraint='tasty-quickcheck ==0.10.1.2
            ' --constraint='temporary ==1.3
-           ' --constraint='unix ==2.7.2.2' all ; fi
-+          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-lower-bounds.json
+-          ' --constraint='unix ==2.7.2.2' --dependencies-only -j2 all ; fi
++          ' --constraint='unix ==2.7.2.2' --dependencies-only -j2 landlock ; fi
+           if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
+           ' --constraint='directory ==1.3.6.0
+           ' --constraint='exceptions ==0.10.4
+@@ -274,12 +280,56 @@ jobs:
+           ' --constraint='tasty-hunit ==0.10.0.3
+           ' --constraint='tasty-quickcheck ==0.10.1.2
+           ' --constraint='temporary ==1.3
+-          ' --constraint='unix ==2.7.2.2' all ; fi
++          ' --constraint='unix ==2.7.2.2' landlock ; fi
++          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-lower-bounds-landlock.json
+       - name: constraint set lower-bounds-psx
+         run: |
+           if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
+           ' --constraint='tasty ==1.4.1
+-          ' --constraint='tasty-hunit ==0.10.0.3' --dependencies-only -j2 all ; fi
++          ' --constraint='tasty-hunit ==0.10.0.3' --dependencies-only -j2 psx ; fi
+           if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
+           ' --constraint='tasty ==1.4.1
+-          ' --constraint='tasty-hunit ==0.10.0.3' all ; fi
++          ' --constraint='tasty-hunit ==0.10.0.3' psx ; fi
++          mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-lower-bounds-psx.json
 +
 +      - name: Upload build plan as artifact
 +        uses: actions/upload-artifact@v3
