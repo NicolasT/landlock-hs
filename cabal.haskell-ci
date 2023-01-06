@@ -1,6 +1,6 @@
 Github-Patches:
   .github/workflows/haskell-ci.patch
---   .github/workflows/haskell-ci-cabal-plan-bounds.patch
+  .github/workflows/haskell-ci-cabal-plan-bounds.patch
 
 Distribution: jammy
 
