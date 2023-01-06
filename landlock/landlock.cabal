@@ -205,7 +205,7 @@ test-suite landlocked-test
   build-depends:
     , base         ^>=4.14.0.0 || ^>=4.15.0.0 || ^>=4.16.0.0 || ^>=4.17.0.0
     , filepath     ^>=1.4.2.1
-    , process      ^>=1.6.9.0
+    , process      ^>=1.6.8.2
     , tasty        ^>=1.4.1
     , tasty-hunit  ^>=0.10.0.3
     , temporary    ^>=1.3
