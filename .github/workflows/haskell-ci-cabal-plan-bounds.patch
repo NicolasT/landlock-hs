@@ -1,11 +1,11 @@
-commit 693eacbe8f973e85265d0f8a9e9365ff8818fe0d
+commit d1c34e5126999c5bf597df8dbe150e30607b3cd3
 Author: Nicolas Trangez <ikke@nicolast.be>
-Date:   Fri Jan 6 01:43:20 2023 +0100
+Date:   Fri Jan 6 01:55:32 2023 +0100
 
     Stash
 
 diff --git a/.github/workflows/haskell-ci.yml b/.github/workflows/haskell-ci.yml
-index 4ac3fbf..7c7e897 100644
+index 4ac3fbf..63ad992 100644
 --- a/.github/workflows/haskell-ci.yml
 +++ b/.github/workflows/haskell-ci.yml
 @@ -207,6 +207,7 @@ jobs:
@@ -49,19 +49,25 @@ index 4ac3fbf..7c7e897 100644
        - name: constraint set lower-bounds-psx
          run: |
            if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
-@@ -261,6 +267,7 @@ jobs:
+@@ -261,8 +267,12 @@ jobs:
            if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-test $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
            ' --constraint='tasty ==1.4.1
            ' --constraint='tasty-hunit ==0.10.0.3' all ; fi
 +          if [ $((HCNUMVER < 90000)) -ne 0 ] ; then mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-lower-bounds-psx.json ; fi
        - name: constraint set lower-bounds-landlock
          run: |
++          mv cabal.project cabal.project.old
++          echo "packages: $GITHUB_WORKSPACE/source/landlock" >> cabal.project
++          echo "allow-lower: psx-0.1.0.0:base" >> cabal.project
            if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
-@@ -305,3 +312,47 @@ jobs:
+           ' --constraint='directory ==1.3.6.0
+           ' --constraint='exceptions ==0.10.4
+@@ -305,3 +315,48 @@ jobs:
            ' --constraint='tasty-quickcheck ==0.10.1.2
            ' --constraint='temporary ==1.3
            ' --constraint='unix ==2.7.2.2' all ; fi
 +          if [ $((HCNUMVER < 90000)) -ne 0 ] ; then mkdir -p /tmp/plans && cp dist-newstyle/cache/plan.json /tmp/plans/plan-$HCNUMVER-lower-bounds-landlock.json ; fi
++          mv cabal.project.old cabal.project
 +
 +      - name: Upload build plan as artifact
 +        uses: actions/upload-artifact@v3
