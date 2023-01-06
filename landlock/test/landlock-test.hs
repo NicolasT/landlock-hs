@@ -241,7 +241,7 @@ functionalTestCases =
 testAllV1Restrictions :: IO ()
 testAllV1Restrictions = do
   let fn = "/etc/resolv.conf"
-      try act = withFile fn ReadMode act
+      try = withFile fn ReadMode
 
   -- First, try to open as-is
   try (\_ -> return ())
