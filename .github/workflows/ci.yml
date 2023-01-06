@@ -28,7 +28,7 @@ jobs:
       - name: Cache Cabal files
         uses: actions/cache@v3.2.2
         with:
-          paths: |
+          path: |
             ~/.cabal/packages
             ~/.cabal/store
           key: ${{ runner.os }}-cabal
@@ -79,6 +79,13 @@ jobs:
         ghc: ['8.10.7', '9.0.2', '9.2.4', '9.4.2']
     runs-on: ubuntu-22.04
     steps:
+      - name: Cache Cabal files
+        uses: actions/cache@v3.2.2
+        with:
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+          key: ${{ runner.os }}-cabal
       - name: Install GHC
         uses: haskell/actions/setup@v2.2.0
         with:
