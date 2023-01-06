@@ -38,16 +38,16 @@ jobs:
         uses: actions/checkout@v3.3.0
       - name: Build dependencies
         run: |
-          cabal build --dependencies-only all
+          cabal build all --dependencies-only
       - name: Build
         run: |
           cabal build all
       - name: Build test dependencies
         run: |
-          cabal build --enable-tests --dependencies-only all
+          cabal build all --enable-tests --dependencies-only
       - name: Build tests
         run: |
-          cabal build --enable-tests all
+          cabal build all --enable-tests
       - name: Run tests
         run: |
-          cabal test --test-show-details=direct
+          cabal test all --test-show-details=direct
