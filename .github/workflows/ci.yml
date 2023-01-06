@@ -6,7 +6,7 @@ on:
 permissions: {}
 
 jobs:
-  lint:
+  hlint:
     name: Lint source-code using hlint
     runs-on: ubuntu-22.04
     steps:
@@ -21,9 +21,59 @@ jobs:
         with:
           fail-on: status
 
+  cabal-fmt:
+    name: Lint Cabal project description files formatting
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Cache Cabal files
+        uses: actions/cache@v3.2.2
+        with:
+          paths: |
+            ~/.cabal/packages
+            ~/.cabal/store
+          key: ${{ runner.os }}-cabal
+      - name: Install Cabal
+        uses: haskell/actions/setup@v2.2.0
+        with:
+          ghc-version: 9.4.4
+          cabal-version: 3.8.1.0
+      - name: Install cabal-fmt
+        run: |
+          cabal update
+          cabal install "cabal-fmt-0.1.6"
+      - name: Checkout source-code
+        uses: actions/checkout@v3.3.0
+      - name: Check formatting of Cabal project description
+        run: |
+          ~/.cabal/bin/cabal-fmt --Werror --check landlock/landlock.cabal psx/psx.cabal
+
+  cabal-check:
+    name: Lint Cabal project description files
+    needs:
+      - cabal-fmt
+    strategy:
+      matrix:
+        project: ['landlock', 'psx']
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install Cabal
+        uses: haskell/actions/setup@v2.2.0
+        with:
+          ghc-version: 9.4.4
+          cabal-version: latest
+      - name: Checkout source-code
+        uses: actions/checkout@v3.3.0
+      - name: cabal check
+        run: |
+          cd ${{ matrix.project }}
+          cabal check
+
   build-and-test:
     name: Build and test packages
-    needs: lint
+    needs:
+      - hlint
+      - cabal-fmt
+      - cabal-check
     strategy:
       matrix:
         ghc: ['8.10.7', '9.0.2', '9.2.4', '9.4.2']
