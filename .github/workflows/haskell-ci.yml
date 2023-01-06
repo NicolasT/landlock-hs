@@ -260,7 +260,7 @@ jobs:
           ' --constraint='exceptions ==0.10.4
           ' --constraint='filepath ==1.4.2.1
           ' --constraint='optparse-applicative ==0.16.1.0
-          ' --constraint='process ==1.6.9.0
+          ' --constraint='process ==1.6.8.2
           ' --constraint='psx ==0.1.0.0
           ' --constraint='QuickCheck ==2.14.2
           ' --constraint='quickcheck-classes-base ==0.6.2.0
@@ -274,7 +274,7 @@ jobs:
           ' --constraint='exceptions ==0.10.4
           ' --constraint='filepath ==1.4.2.1
           ' --constraint='optparse-applicative ==0.16.1.0
-          ' --constraint='process ==1.6.9.0
+          ' --constraint='process ==1.6.8.2
           ' --constraint='psx ==0.1.0.0
           ' --constraint='QuickCheck ==2.14.2
           ' --constraint='quickcheck-classes-base ==0.6.2.0
