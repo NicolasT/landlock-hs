@@ -39,7 +39,6 @@ jobs:
           cabal-version: 3.8.1.0
       - name: Install cabal-fmt
         run: |
-          cabal update
           cabal install "cabal-fmt-0.1.6"
       - name: Checkout source-code
         uses: actions/checkout@v3.3.0
