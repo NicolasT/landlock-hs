@@ -36,7 +36,8 @@ extra-source-files:
   cbits/psx/psx_syscall.h
   test/detect-psx.h
 
-tested-with:        GHC ==8.10.1 || ==9.0.1 || ==9.2.1 || ==9.4.1 || ==9.4.4
+tested-with:
+  GHC ==8.10.1 || ==9.0.1 || ==9.2.1 || ==9.4.1 || ==9.4.4
 
 source-repository head
   type:     git
