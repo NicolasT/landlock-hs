@@ -1,0 +1,113 @@
+---
+name: CI
+on:
+  - pull_request
+
+permissions: {}
+
+jobs:
+  hlint:
+    name: Lint source-code using hlint
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install hlint
+        uses: haskell/actions/hlint-setup@v2.2.0
+        with:
+          version: 3.5
+      - name: Checkout source-code
+        uses: actions/checkout@v3.3.0
+      - name: Run hlint
+        uses: haskell/actions/hlint-run@v2.2.0
+        with:
+          fail-on: status
+
+  cabal-fmt:
+    name: Lint Cabal package description file formatting
+    strategy:
+      matrix:
+        package: ['landlock', 'psx']
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Cache Cabal files
+        uses: actions/cache@v3.2.2
+        with:
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+          key: ${{ runner.os }}-cabal
+      - name: Install Cabal
+        uses: haskell/actions/setup@v2.2.0
+        with:
+          ghc-version: 9.4.4
+          cabal-version: 3.8.1.0
+      - name: Install cabal-fmt
+        run: |
+          cabal install "cabal-fmt-0.1.6"
+      - name: Checkout source-code
+        uses: actions/checkout@v3.3.0
+      - name: Check formatting of Cabal package description
+        run: |
+          ~/.cabal/bin/cabal-fmt --Werror --check ${{ matrix.package }}/${{ matrix.package }}.cabal
+
+  cabal-check:
+    name: Lint Cabal package description files
+    needs:
+      - cabal-fmt
+    strategy:
+      matrix:
+        package: ['landlock', 'psx']
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install Cabal
+        uses: haskell/actions/setup@v2.2.0
+        with:
+          ghc-version: 9.4.4
+          cabal-version: latest
+      - name: Checkout source-code
+        uses: actions/checkout@v3.3.0
+      - name: cabal check
+        run: |
+          cd ${{ matrix.package }}
+          cabal check
+
+  build-and-test:
+    name: Build and test package
+    needs:
+      - hlint
+      - cabal-fmt
+      - cabal-check
+    strategy:
+      matrix:
+        ghc: ['8.10.7', '9.0.2', '9.2.4', '9.4.2']
+        package: ['landlock', 'psx']
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Cache Cabal files
+        uses: actions/cache@v3.2.2
+        with:
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+          key: ${{ runner.os }}-cabal
+      - name: Install GHC
+        uses: haskell/actions/setup@v2.2.0
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: 3.8.1.0
+      - name: Checkout source-code
+        uses: actions/checkout@v3.3.0
+      - name: Build dependencies
+        run: |
+          cabal build ${{ matrix.package }} --dependencies-only
+      - name: Build
+        run: |
+          cabal build ${{ matrix.package }}
+      - name: Build test dependencies
+        run: |
+          cabal build ${{ matrix.package }} --enable-tests --dependencies-only
+      - name: Build tests
+        run: |
+          cabal build ${{ matrix.package }} --enable-tests
+      - name: Run tests
+        run: |
+          cabal test ${{ matrix.package }} --test-show-details=direct
