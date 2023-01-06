@@ -255,6 +255,7 @@ jobs:
         run: |
           mv cabal.project cabal.project.old
           echo "packages: $GITHUB_WORKSPACE/source/landlock" >> cabal.project
+          echo "allow-older: psx-0.1.0.0:base" >> cabal.project
           if [ $((HCNUMVER < 90000)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --enable-tests --disable-benchmarks --constraint='async ==2.2.3
           ' --constraint='directory ==1.3.6.0
           ' --constraint='exceptions ==0.10.4
