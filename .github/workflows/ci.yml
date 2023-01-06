@@ -22,10 +22,10 @@ jobs:
           fail-on: status
 
   cabal-fmt:
-    name: Lint Cabal project description file formatting
+    name: Lint Cabal package description file formatting
     strategy:
       matrix:
-        project: ['landlock', 'psx']
+        package: ['landlock', 'psx']
     runs-on: ubuntu-22.04
     steps:
       - name: Cache Cabal files
@@ -45,17 +45,17 @@ jobs:
           cabal install "cabal-fmt-0.1.6"
       - name: Checkout source-code
         uses: actions/checkout@v3.3.0
-      - name: Check formatting of Cabal project description
+      - name: Check formatting of Cabal package description
         run: |
-          ~/.cabal/bin/cabal-fmt --Werror --check ${{ matrix.project }}/${{ matrix.project }}.cabal
+          ~/.cabal/bin/cabal-fmt --Werror --check ${{ matrix.package }}/${{ matrix.package }}.cabal
 
   cabal-check:
-    name: Lint Cabal project description files
+    name: Lint Cabal package description files
     needs:
       - cabal-fmt
     strategy:
       matrix:
-        project: ['landlock', 'psx']
+        package: ['landlock', 'psx']
     runs-on: ubuntu-22.04
     steps:
       - name: Install Cabal
@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v3.3.0
       - name: cabal check
         run: |
-          cd ${{ matrix.project }}
+          cd ${{ matrix.package }}
           cabal check
 
   build-and-test:
@@ -79,7 +79,7 @@ jobs:
     strategy:
       matrix:
         ghc: ['8.10.7', '9.0.2', '9.2.4', '9.4.2']
-        project: ['landlock', 'psx']
+        package: ['landlock', 'psx']
     runs-on: ubuntu-22.04
     steps:
       - name: Cache Cabal files
@@ -98,16 +98,16 @@ jobs:
         uses: actions/checkout@v3.3.0
       - name: Build dependencies
         run: |
-          cabal build ${{ matrix.project }} --dependencies-only
+          cabal build ${{ matrix.package }} --dependencies-only
       - name: Build
         run: |
-          cabal build ${{ matrix.project }}
+          cabal build ${{ matrix.package }}
       - name: Build test dependencies
         run: |
-          cabal build ${{ matrix.project }} --enable-tests --dependencies-only
+          cabal build ${{ matrix.package }} --enable-tests --dependencies-only
       - name: Build tests
         run: |
-          cabal build ${{ matrix.project }} --enable-tests
+          cabal build ${{ matrix.package }} --enable-tests
       - name: Run tests
         run: |
-          cabal test ${{ matrix.project }} --test-show-details=direct
+          cabal test ${{ matrix.package }} --test-show-details=direct
