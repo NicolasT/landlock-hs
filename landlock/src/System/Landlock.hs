@@ -67,6 +67,7 @@ module System.Landlock
     getVersion,
     version1,
     version2,
+    version3,
 
     -- ** Opening paths using @O_PATH@
 
@@ -115,7 +116,7 @@ import System.Landlock.Syscalls
     prctl,
     throwIfNonZero,
   )
-import System.Landlock.Version (Version (..), version1, version2)
+import System.Landlock.Version (Version (..), version1, version2, version3)
 import System.Posix.IO (closeFd)
 import System.Posix.Types (Fd)
 

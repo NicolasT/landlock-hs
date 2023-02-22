@@ -27,6 +27,7 @@ import System.Landlock
     landlock,
     version1,
     version2,
+    version3,
     withOpenPath,
   )
 import System.Landlock.Flags
@@ -186,11 +187,18 @@ unitTests =
         lookup version1 accessFsFlags @?= Just [AccessFsExecute .. AccessFsMakeSym],
       testCase "lookup version2 accessFsFlags" $
         lookup version2 accessFsFlags @?= Just [AccessFsExecute .. AccessFsRefer],
+      testCase "lookup version3 accessFsFlags" $
+        lookup version3 accessFsFlags @?= Just [AccessFsExecute .. AccessFsTruncate],
       testCase "ABI v2 introduced [AccessFsRefer]" $
         (\\)
           <$> lookup version2 accessFsFlags
           <*> lookup version1 accessFsFlags
           @?= Just [AccessFsRefer],
+      testCase "ABI v3 introduced [AccessFsTruncate]" $
+        (\\)
+          <$> lookup version3 accessFsFlags
+          <*> lookup version2 accessFsFlags
+          @?= Just [AccessFsTruncate],
       testCase "accessFsFlagToBit is unique for all AccessFsFlags" $
         length (nub (sort (map accessFsFlagToBit [minBound .. maxBound])))
           @?= length [minBound :: AccessFsFlag .. maxBound],
