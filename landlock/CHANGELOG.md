@@ -1,6 +1,6 @@
 # Revision history for landlock
 
-## 0.2.1.1 -- YYYY-mm-dd
+## 0.2.1.1 -- 2023-02-28
 
 * Extend API documentation with links to man-pages.
 
