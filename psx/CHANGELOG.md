@@ -1,6 +1,6 @@
 # Revision history for psx
 
-## 0.1.1.1 -- YYYY-mm-dd
+## 0.1.1.1 -- 2023-02-28
 
 * Remove `-Wl,-undefined,__wrap_sigfillset` from link options.
 
