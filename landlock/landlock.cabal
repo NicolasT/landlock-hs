@@ -37,7 +37,8 @@ extra-source-files:
   cbits/hs-landlock.h
   cbits/linux/landlock.h
 
-tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2
+tested-with:
+  GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2 || ==9.6.1
 
 source-repository head
   type:     git
