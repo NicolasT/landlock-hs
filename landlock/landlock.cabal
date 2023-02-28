@@ -1,7 +1,7 @@
 cabal-version:      2.2
 build-type:         Simple
 name:               landlock
-version:            0.2.1.0
+version:            0.2.1.1
 synopsis:           Haskell bindings for the Linux Landlock API
 description:
   This library exposes Haskell bindings for the Linux kernel Landlock API.

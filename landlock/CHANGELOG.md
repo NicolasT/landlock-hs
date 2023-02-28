@@ -1,5 +1,7 @@
 # Revision history for landlock
 
+## 0.2.1.1 -- YYYY-mm-dd
+
 ## 0.2.1.0 -- 2023-02-22
 
 * Use vendored `linux/landlock.h` instead of system-provided header during

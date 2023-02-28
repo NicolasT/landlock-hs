@@ -149,7 +149,7 @@ data RulesetAttr = RulesetAttr
   { -- | Actions (cf. 'AccessFsFlag') that ought to
     -- be handled by a ruleset and should be
     -- forbidden if no rule explicitly allow them.
-    -- This is needed forbackward compatibility
+    -- This is needed for backward compatibility
     -- reasons.
     rulesetAttrHandledAccessFs :: [AccessFsFlag]
   }
