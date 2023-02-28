@@ -41,13 +41,14 @@ openat dirfd pathname flags = withCString pathname $ \pathnamep -> do
   throwErrnoPathIfMinus1Retry "openat" pathname $
     fromIntegral <$> _openat (fromIntegral dirfd) pathnamep flags
 
--- | Extra flags used by 'withOpenPathAt' in the call to @openat@.
+-- | Extra flags used by 'withOpenPathAt' in the call to
+-- [@openat@](https://man.archlinux.org/man/openat.2).
 data OpenPathFlags = OpenPathFlags
-  { -- | Set @O_DIRECTORY@.
+  { -- | Set [@O_DIRECTORY@](https://man.archlinux.org/man/openat.2#O_DIRECTORY).
     directory :: Bool,
-    -- | Set @O_NOFOLLOW@.
+    -- | Set [@O_NOFOLLOW@](https://man.archlinux.org/man/openat.2#O_NOFOLLOW).
     nofollow :: Bool,
-    -- | Set @O_CLOEXEC@.
+    -- | Set [@O_CLOEXEC@](https://man.archlinux.org/man/openat.2#O_CLOEXEC).
     cloexec :: Bool
   }
   deriving (Show, Eq)
@@ -65,14 +66,16 @@ defaultOpenPathFlags =
       cloexec = True
     }
 
--- | Perform an action with a path @open@ed using @O_PATH@.
+-- | Perform an action with a path opened using
+-- [@O_PATH@](https://man.archlinux.org/man/openat.2#O_PATH).
 --
--- The file descriptor provided to the action will be @close@d when the
--- function returns.
+-- The file descriptor provided to the action will be
+-- [@close@](https://man.archlinux.org/man/close.2)d when the function returns.
 --
--- This internally calls @openat@ with @AT_FDCWD@ and the @O_PATH@ and
--- @O_RDONLY@ flags set, next to any flags specified in the 'OpenPathFlags'
--- argument.
+-- This internally calls [@openat@](https://man.archlinux.org/man/openat.2) with
+-- @AT_FDCWD@ and the [@O_PATH@](https://man.archlinux.org/man/openat.2#O_PATH)
+-- and [@O_RDONLY@](https://man.archlinux.org/man/open.2#File_access_mode) flags
+-- set, next to any flags specified in the 'OpenPathFlags' argument.
 withOpenPath ::
   (MonadIO m, MonadMask m) =>
   -- | Path to open.
@@ -85,18 +88,25 @@ withOpenPath ::
   m a
 withOpenPath = withOpenPathAt (fromIntegral aT_FDCWD)
 
--- | Perform an action with a path @openat@ed using @O_PATH@.
+-- | Perform an action with a path
+-- [@openat@](https://man.archlinux.org/man/openat.2)ed using
+-- [@O_PATH@](https://man.archlinux.org/man/openat.2#O_PATH).
 --
--- Like 'withOpenPath', exposing the @openat@ @dirfd@ argument.
+-- Like 'withOpenPath', exposing the
+-- [@openat@](https://man.archlinux.org/man/openat.2#O_PATH) @dirfd@ argument.
 --
--- The file descriptor provided to the action will be @close@d when the
+-- The file descriptor provided to the action will be
+-- [@close@](https://man.archlinux.org/man/close.2)d when the
 -- function returns.
 --
--- This internally calls @openat@ with the @O_PATH@ and @O_RDONLY@ flags set,
--- next to any flags specified in the 'OpenPathFlags' argument.
+-- This internally calls
+-- [@openat@](https://man.archlinux.org/man/openat.2) with the
+-- [@O_PATH@](https://man.archlinux.org/man/openat.2#O_PATH) and
+-- [@O_RDONLY@](https://man.archlinux.org/man/openat.2#File_access_mode) flags
+-- set, next to any flags specified in the 'OpenPathFlags' argument.
 withOpenPathAt ::
   (MonadIO m, MonadMask m) =>
-  -- | @dirfd@ argument to @openat@.
+  -- | @dirfd@ argument to [@openat@](https://man.archlinux.org/man/openat.2).
   Fd ->
   -- | Path to open.
   FilePath ->

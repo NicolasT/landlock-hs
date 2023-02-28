@@ -69,12 +69,14 @@ instance Storable (Rule 'PathBeneath) where
 
 -- | Construct a path hierarchy rule definition.
 --
--- This corresponds to a rule of type @LANDLOCK_RULE_PATH_BENEATH@, with
--- attributes defined in a @struct landlock_path_beneath_attr@.
+-- This corresponds to a rule of type
+-- [@LANDLOCK_RULE_PATH_BENEATH@](https://man.archlinux.org/man/landlock_add_rule.2.en#LANDLOCK_RULE_PATH_BENEATH),
+-- with attributes defined in a @struct landlock_path_beneath_attr@.
 pathBeneath ::
-  -- | File descriptor, preferably opened with @O_PATH@, which
-  --   identifies the parent directory of a file hierarchy, or
-  --   just a file.
+  -- | File descriptor, preferably opened with
+  -- [@O_PATH@](https://man.archlinux.org/man/open.2#O_PATH), which
+  -- identifies the parent directory of a file hierarchy, or
+  -- just a file.
   Fd ->
   -- | Allowed actions for this file hierarchy
   --   (cf. 'AccessFsFlag').
