@@ -1,7 +1,7 @@
 cabal-version:      2.2
 build-type:         Simple
 name:               psx
-version:            0.1.1.0
+version:            0.1.1.1
 synopsis:           Integrate libpsx with the GHC RTS
 description:
   This library embeds @libpsx@ in a GHC Haskell-compiled application.
@@ -89,8 +89,7 @@ library
   include-dirs:     cbits
   install-includes: hs-psx.h
   c-sources:        cbits/hs-psx.c
-  ld-options:
-    "-Wl,-wrap,sigfillset" "-Wl,-undefined,__wrap_sigfillset"
+  ld-options:       "-Wl,-wrap,sigfillset"
 
   if flag(bundled-libpsx)
     c-sources:  cbits/psx/psx.c

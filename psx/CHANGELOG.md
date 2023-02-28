@@ -1,5 +1,9 @@
 # Revision history for psx
 
+## 0.1.1.1 -- YYYY-mm-dd
+
+* Remove `-Wl,-undefined,__wrap_sigfillset` from link options.
+
 ## 0.1.1.0 -- 2023-02-22
 
 * Support GHC 9.4.2 / `base ^>=4.17`.
