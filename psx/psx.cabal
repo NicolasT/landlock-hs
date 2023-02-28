@@ -36,7 +36,8 @@ extra-source-files:
   cbits/psx/psx_syscall.h
   test/detect-psx.h
 
-tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2
+tested-with:
+  GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2 || ==9.6.1
 
 source-repository head
   type:     git
@@ -85,7 +86,7 @@ library
   -- restrict compatibility with said GHC version(s).
   exposed-modules:  System.PSX
   hs-source-dirs:   src
-  build-depends:    base >=4.14.2.0 && <4.17 || ^>=4.17
+  build-depends:    base >=4.14.2.0 && <4.18
   include-dirs:     cbits
   install-includes: hs-psx.h
   c-sources:        cbits/hs-psx.c
@@ -109,7 +110,7 @@ test-suite psx-test-threaded
   include-dirs:     test
   build-depends:
     , async        ^>=2.2.3
-    , base         >=4.14.2.0  && <4.17 || ^>=4.17
+    , base         >=4.14.2.0  && <4.18
     , psx
     , tasty        ^>=1.4.1
     , tasty-hunit  ^>=0.10.0.3
@@ -127,7 +128,7 @@ test-suite psx-test
   include-dirs:     test
   build-depends:
     , async        ^>=2.2.3
-    , base         >=4.14.2.0  && <4.17 || ^>=4.17
+    , base         >=4.14.2.0  && <4.18
     , psx
     , tasty        ^>=1.4.1
     , tasty-hunit  ^>=0.10.0.3
@@ -142,7 +143,7 @@ test-suite psx-test-no-psx
   c-sources:        test/detect-psx.c
   include-dirs:     test cbits
   build-depends:
-    , base         >=4.14.2.0  && <4.17 || ^>=4.17
+    , base         >=4.14.2.0  && <4.18
     , tasty        ^>=1.4.1
     , tasty-hunit  ^>=0.10.0.3
 
