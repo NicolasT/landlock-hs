@@ -201,7 +201,7 @@ landlock ::
   -- sandboxing rules (internally using @landlock_add_rule@),
   -- given a 'Rule' and a set of 'AddRuleFlag's. However, since no
   -- flags are currently defined, this should be an empty list.
-  ((Storable (Rule r) => Rule r -> [AddRuleFlag] -> m ()) -> m a) ->
+  (((Storable (Rule r)) => Rule r -> [AddRuleFlag] -> m ()) -> m a) ->
   -- | Result of the given action.
   m a
 landlock attr createRulesetFlags restrictSelfFlags act =
