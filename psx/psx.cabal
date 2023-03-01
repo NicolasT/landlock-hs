@@ -108,7 +108,10 @@ test-suite psx-test-threaded
   hs-source-dirs:   test
   main-is:          psx-test-threaded.hs
   other-modules:    TestCases
-  c-sources:        test/detect-psx.c
+  c-sources:
+    test/detect-psx.c
+    test/xgettid.c
+
   include-dirs:     test
   hsc2hs-options:   -i wrap-sigfillset.c
   build-depends:
