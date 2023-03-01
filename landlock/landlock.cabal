@@ -1,4 +1,4 @@
-cabal-version:      2.2
+cabal-version:      3.6
 build-type:         Simple
 name:               landlock
 version:            0.2.1.1
@@ -77,10 +77,10 @@ library
   import:           common-settings
   exposed-modules:  System.Landlock
   build-depends:
-    , base               >=4.14.2.0 && <4.18
-    , exceptions         ^>=0.10.4
-    , landlock-internal
-    , unix               >=2.7.2.2  && <2.8  || ^>=2.8
+    , base                        >=4.14.2.0 && <4.18
+    , exceptions                  ^>=0.10.4
+    , landlock:landlock-internal
+    , unix                        >=2.7.2.2  && <2.8  || ^>=2.8
 
   hs-source-dirs:   src
   other-extensions:
@@ -99,6 +99,7 @@ library landlock-internal
 
   include-dirs:       cbits
   c-sources:          cbits/hs-landlock.c
+  hsc2hs-options:     -i ../cbits/hsc2hs-wrap-sigfillset.c
   build-depends:
     , base        >=4.14.2.0 && <4.18
     , exceptions  ^>=0.10.4
@@ -142,17 +143,16 @@ test-suite landlock-test
   main-is:          landlock-test.hs
   other-modules:    ThreadedScenario
   build-depends:
-    , async                    ^>=2.2.3
-    , base                     >=4.14.2.0  && <4.18
-    , filepath                 ^>=1.4.2.1
-    , landlock
-    , landlock-internal
-    , process                  ^>=1.6.9.0
-    , QuickCheck               ^>=2.14.2
-    , quickcheck-classes-base  ^>=0.6.2.0
-    , tasty                    ^>=1.4.1
-    , tasty-hunit              ^>=0.10.0.3
-    , tasty-quickcheck         ^>=0.10.1.2
+    , async                                   ^>=2.2.3
+    , base                                    >=4.14.2.0  && <4.18
+    , filepath                                ^>=1.4.2.1
+    , landlock:{landlock, landlock-internal}
+    , process                                 ^>=1.6.9.0
+    , QuickCheck                              ^>=2.14.2
+    , quickcheck-classes-base                 ^>=0.6.2.0
+    , tasty                                   ^>=1.4.1
+    , tasty-hunit                             ^>=0.10.0.3
+    , tasty-quickcheck                        ^>=0.10.1.2
 
   other-extensions:
     CApiFFI

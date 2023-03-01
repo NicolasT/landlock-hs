@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <signal.h>
 
 extern int __real_sigfillset(sigset_t *set, int signum);
