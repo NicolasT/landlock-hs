@@ -110,6 +110,7 @@ test-suite psx-test-threaded
   other-modules:    TestCases
   c-sources:        test/detect-psx.c
   include-dirs:     test
+  hsc2hs-options:   -i wrap-sigfillset.c
   build-depends:
     , async        ^>=2.2.3
     , base         >=4.14.2.0  && <4.18
