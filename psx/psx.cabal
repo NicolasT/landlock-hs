@@ -1,4 +1,4 @@
-cabal-version:      2.2
+cabal-version:      3.6
 build-type:         Simple
 name:               psx
 version:            0.1.1.1
@@ -35,6 +35,7 @@ extra-source-files:
   cbits/hs-psx.h
   cbits/psx/psx_syscall.h
   test/detect-psx.h
+  test/wrap-sigfillset.c
 
 tested-with:
   GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2 || ==9.6.1
@@ -126,6 +127,7 @@ test-suite psx-test
   other-modules:    TestCases
   c-sources:        test/detect-psx.c
   include-dirs:     test
+  hsc2hs-options:   -i wrap-sigfillset.c
   build-depends:
     , async        ^>=2.2.3
     , base         >=4.14.2.0  && <4.18
