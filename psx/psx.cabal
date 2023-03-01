@@ -36,6 +36,7 @@ extra-source-files:
   cbits/psx/psx_syscall.h
   test/detect-psx.h
   test/wrap-sigfillset.c
+  test/xgettid.h
 
 tested-with:
   GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2 || ==9.6.1
@@ -125,7 +126,10 @@ test-suite psx-test
   hs-source-dirs:   test
   main-is:          psx-test.hs
   other-modules:    TestCases
-  c-sources:        test/detect-psx.c
+  c-sources:
+    test/detect-psx.c
+    test/xgettid.c
+
   include-dirs:     test
   hsc2hs-options:   -i wrap-sigfillset.c
   build-depends:

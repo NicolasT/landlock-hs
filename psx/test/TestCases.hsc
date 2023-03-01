@@ -50,7 +50,7 @@ foreign import capi unsafe "unistd.h getpid"
 getpid :: IO #{type pid_t}
 getpid = throwErrnoIfMinus1 "getpid" c_getpid
 
-foreign import capi unsafe "unistd.h gettid"
+foreign import capi unsafe "xgettid.h xgettid"
     c_gettid :: IO #{type pid_t}
 
 gettid :: IO #{type pid_t}
