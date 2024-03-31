@@ -2,9 +2,13 @@
 
 ## 0.1.2.0 -- YYYY-MM-DD
 
-* Update Cabal file formatting
-* Support GHC 9.6.4 / `base ^>=4.18`
-* Support GHC 9.8.2 / `base ^>=4.19`
+* Update Cabal file formatting.
+
+* Support GHC 9.6.4 / `base ^>=4.18`.
+
+* Support GHC 9.8.2 / `base ^>=4.19`.
+
+* Update vendored sources.
 
 ## 0.1.1.1 -- 2023-02-28
 
