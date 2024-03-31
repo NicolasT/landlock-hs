@@ -10,7 +10,10 @@
 
 * Update vendored sources.
 
-* Support `tasty ^>=1.5`
+* Support `tasty ^>=1.5`.
+
+* Fix build on platforms where a `hsc2hs` build links in `libgcc` which relies on
+  `sigfillset`. This requires the Cabal format version to be bumped to 3.6.
 
 ## 0.1.1.1 -- 2023-02-28
 

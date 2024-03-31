@@ -1,4 +1,4 @@
-cabal-version:      2.2
+cabal-version:      3.6
 build-type:         Simple
 name:               psx
 version:            0.1.1.1
@@ -35,6 +35,7 @@ extra-source-files:
   cbits/hs-psx.h
   cbits/psx/psx_syscall.h
   test/detect-psx.h
+  test/hsc2hs-stubs.c
 
 tested-with:
   GHC ==8.10.7
@@ -113,6 +114,7 @@ test-suite psx-test-threaded
   main-is:          psx-test-threaded.hs
   other-modules:    TestCases
   c-sources:        test/detect-psx.c
+  hsc2hs-options:   -i hsc2hs-stubs.c
   include-dirs:     test
   build-depends:
     , async        ^>=2.2.3
@@ -131,6 +133,7 @@ test-suite psx-test
   main-is:          psx-test.hs
   other-modules:    TestCases
   c-sources:        test/detect-psx.c
+  hsc2hs-options:   -i hsc2hs-stubs.c
   include-dirs:     test
   build-depends:
     , async        ^>=2.2.3
