@@ -251,6 +251,36 @@ jobs:
       - name: prepare for constraint sets
         run: |
           rm -f cabal.project.local
+      - name: constraint set filepath-1.5
+        run: |
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='filepath ^>=1.5' all --dry-run ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then cabal-plan topo | sort ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='filepath ^>=1.5' --dependencies-only -j2 all ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='filepath ^>=1.5' all ; fi
+      - name: constraint set filepath-1.4
+        run: |
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='filepath ^>=1.4' all --dry-run ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then cabal-plan topo | sort ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='filepath ^>=1.4' --dependencies-only -j2 all ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='filepath ^>=1.4' all ; fi
+      - name: constraint set tasty-1.5
+        run: |
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='tasty ^>=1.5' all --dry-run ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then cabal-plan topo | sort ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='tasty ^>=1.5' --dependencies-only -j2 all ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='tasty ^>=1.5' all ; fi
+      - name: constraint set tasty-1.4
+        run: |
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='tasty ^>=1.4' all --dry-run ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then cabal-plan topo | sort ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='tasty ^>=1.4' --dependencies-only -j2 all ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='tasty ^>=1.4' all ; fi
+      - name: constraint set optparse-applicative-0.18
+        run: |
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='optparse-applicative ^>=0.18' all --dry-run ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then cabal-plan topo | sort ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='optparse-applicative ^>=0.18' --dependencies-only -j2 all ; fi
+          if [ $((HCNUMVER >= 90800)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='optparse-applicative ^>=0.18' all ; fi
       - name: constraint set optparse-applicative-0.17
         run: |
           if [ $((HCNUMVER >= 90400 && HCNUMVER < 90600)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='optparse-applicative ^>=0.17' all --dry-run ; fi

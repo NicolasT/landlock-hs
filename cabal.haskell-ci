@@ -22,3 +22,23 @@ Constraint-Set optparse-applicative-0.16
 Constraint-Set optparse-applicative-0.17
   Constraints: optparse-applicative ^>=0.17
   Ghc: ^>=9.4
+
+Constraint-Set optparse-applicative-0.18
+  Constraints: optparse-applicative ^>=0.18
+  Ghc: ^>=9.8
+
+Constraint-Set tasty-1.4
+  Constraints: tasty ^>=1.4
+  Ghc: ^>=9.8
+
+Constraint-Set tasty-1.5
+  Constraints: tasty ^>=1.5
+  Ghc: ^>=9.8
+
+Constraint-Set filepath-1.4
+  Constraints: filepath ^>=1.4
+  Ghc: ^>=9.8
+
+Constraint-Set filepath-1.5
+  Constraints: filepath ^>=1.5
+  Ghc: ^>=9.8
