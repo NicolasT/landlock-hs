@@ -7,7 +7,7 @@ on:
 jobs:
   ormolu:
     name: Lint code layout using Ormolu
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -16,7 +16,7 @@ jobs:
 
   cabal-fmt:
     name: Lint Cabal project description using cabal-fmt
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Cache Cabal files
         uses: actions/cache@v3
@@ -29,10 +29,10 @@ jobs:
       - name: Install cabal-fmt
         run: |
           cabal update
-          cabal install "cabal-fmt-0.1.6"
+          cabal install --ignore-project --with-compiler=ghc-9.6 "cabal-fmt-0.1.11"
 
       - name: checkout
         uses: actions/checkout@v2
 
       - name: Check formatting of Cabal project description
-        run: ~/.cabal/bin/cabal-fmt --Werror --check landlock/landlock.cabal psx/psx.cabal
+        run: ~/.local/bin/cabal-fmt --Werror --check landlock/landlock.cabal psx/psx.cabal

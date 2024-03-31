@@ -1,5 +1,9 @@
 # Revision history for landlock
 
+## 0.2.1.2 -- YYYY-mm-dd
+
+* Update Cabal file formatting
+
 ## 0.2.1.1 -- 2023-02-28
 
 * Extend API documentation with links to man-pages.
