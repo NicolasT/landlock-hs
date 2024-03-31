@@ -1,8 +1,9 @@
 # Revision history for landlock
 
-## 0.2.1.2 -- YYYY-mm-dd
+## 0.2.2.0 -- YYYY-MM-DD
 
 * Update Cabal file formatting
+* Support GHC 9.6.4 / `base ^>=4.18`
 
 ## 0.2.1.1 -- 2023-02-28
 
