@@ -1,5 +1,10 @@
 # Revision history for psx
 
+## 0.1.2.0 -- YYYY-MM-DD
+
+* Update Cabal file formatting
+* Support GHC 9.6.4 /  `base ^>=4.18`
+
 ## 0.1.1.1 -- 2023-02-28
 
 * Remove `-Wl,-undefined,__wrap_sigfillset` from link options.

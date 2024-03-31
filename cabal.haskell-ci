@@ -3,6 +3,7 @@ Github-Patches: .github/workflows/haskell-ci.patch
 Distribution: jammy
 
 Hlint: True
+Hlint-Job: 9.4.2
 
 Constraint-Set unix-2.7
   Constraints: unix ^>=2.7
