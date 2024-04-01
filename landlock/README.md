@@ -28,6 +28,7 @@ import System.Landlock (
     , abiVersion
     , accessFsFlags
     , accessFsFlagIsReadOnly
+    , accessNetFlags
     , defaultOpenPathFlags
     , isSupported
     , landlock
@@ -52,8 +53,10 @@ main = withFakeRoot $ \root -> do
 
     version <- abiVersion
     -- Find all FS access flags for the running kernel's ABI version
-    allFlags <- lookupAccessFsFlags version
-    let roFlags = filter accessFsFlagIsReadOnly allFlags
+    allFsFlags <- lookupAccessFsFlags version
+    let roFlags = filter accessFsFlagIsReadOnly allFsFlags
+    -- Find all Net access flags for the running kernel's ABI version
+    allNetFlags <- lookupAccessNetFlags version
 
     let homeDir = root </> "home" </> "user"
         publicKey = homeDir </> ".ssh" </> "id_ed25519.pub"
@@ -61,10 +64,10 @@ main = withFakeRoot $ \root -> do
         tmpDir = root </> "tmp"
 
     -- Construct the sandbox, locking down everything by default
-    landlock (RulesetAttr allFlags) [] [] $ \addRule -> do
+    landlock (RulesetAttr allFsFlags allNetFlags) [] [] $ \addRule -> do
         -- /tmp is fully accessible
         withOpenPath tmpDir defaultOpenPathFlags{ directory = True } $ \tmp ->
-            addRule (pathBeneath tmp allFlags) []
+            addRule (pathBeneath tmp allFsFlags) []
 
         -- SSH public key is readable
         withOpenPath publicKey defaultOpenPathFlags $ \key ->
@@ -106,6 +109,10 @@ main = withFakeRoot $ \root -> do
 
   where
     lookupAccessFsFlags version = case lookupMax version accessFsFlags of
+        Nothing -> fail "Unsupported ABI version"
+        Just flags -> return flags
+
+    lookupAccessNetFlags version = case lookupMax version accessNetFlags of
         Nothing -> fail "Unsupported ABI version"
         Just flags -> return flags
 

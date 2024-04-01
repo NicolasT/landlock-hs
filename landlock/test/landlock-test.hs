@@ -11,6 +11,7 @@ import Control.Exception.Base (handleJust)
 import Control.Monad (unless)
 import Data.List (nub, sort, (\\))
 import Data.Proxy (Proxy (Proxy))
+import Network.Socket (PortNumber)
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import System.FilePath ((</>))
@@ -18,6 +19,7 @@ import System.IO (IOMode (..), withFile)
 import System.IO.Error (isPermissionError)
 import System.Landlock
   ( AccessFsFlag (..),
+    AccessNetFlag (..),
     OpenPathFlags (..),
     RulesetAttr (..),
     abiVersion,
@@ -35,7 +37,7 @@ import System.Landlock.Flags
     accessFsFlagToBit,
     createRulesetFlagToBit,
   )
-import System.Landlock.Rules (Rule, RuleType (..), pathBeneath)
+import System.Landlock.Rules (Rule, RuleType (..), netPort, pathBeneath)
 import System.Landlock.Syscalls (LandlockRulesetAttr (..))
 import System.Landlock.Version (Version (..))
 import System.Posix.Types (Fd)
@@ -162,13 +164,13 @@ instance Arbitrary OpenPathFlags where
   arbitrary = OpenPathFlags <$> arbitrary <*> arbitrary <*> arbitrary
 
 instance Arbitrary RulesetAttr where
-  arbitrary = RulesetAttr <$> arbitrary
+  arbitrary = RulesetAttr <$> arbitrary <*> arbitrary
 
 instance Arbitrary CreateRulesetFlag where
   arbitrary = arbitraryBoundedEnum
 
 instance Arbitrary LandlockRulesetAttr where
-  arbitrary = LandlockRulesetAttr <$> arbitrary
+  arbitrary = LandlockRulesetAttr <$> arbitrary <*> arbitrary
 
 instance Arbitrary (Rule 'PathBeneath) where
   arbitrary =
@@ -176,7 +178,16 @@ instance Arbitrary (Rule 'PathBeneath) where
       <$> fmap (fromIntegral :: Int -> Fd) arbitrary
       <*> fmap (nub . sort) arbitrary
 
+instance Arbitrary (Rule 'NetPort) where
+  arbitrary =
+    netPort
+      <$> fmap (fromIntegral :: Int -> PortNumber) arbitrary
+      <*> fmap (nub . sort) arbitrary
+
 instance Arbitrary AccessFsFlag where
+  arbitrary = arbitraryBoundedEnum
+
+instance Arbitrary AccessNetFlag where
   arbitrary = arbitraryBoundedEnum
 
 unitTests :: TestTree
@@ -258,7 +269,7 @@ testAllV1Restrictions = do
   v1Restrictions <- case lookup version1 accessFsFlags of
     Nothing -> assertFailure $ "Unknown ABI version: " ++ show version1
     Just r -> return r
-  landlock (RulesetAttr v1Restrictions) [] [] $ \_ -> return ()
+  landlock (RulesetAttr v1Restrictions []) [] [] $ \_ -> return ()
   catchPermissionDenied $ try $ \_ -> fail $ "Still able to open " ++ fn
 
 testRestrictReadExceptEtc :: IO ()
@@ -272,7 +283,7 @@ testRestrictReadExceptEtc = do
 
   act
 
-  landlock (RulesetAttr v1Restrictions) [] [] $ \addRule -> do
+  landlock (RulesetAttr v1Restrictions []) [] [] $ \addRule -> do
     withOpenPath dir defaultOpenPathFlags {directory = True} $ \fd -> do
       addRule (pathBeneath fd [AccessFsReadFile, AccessFsReadDir, AccessFsExecute]) []
 

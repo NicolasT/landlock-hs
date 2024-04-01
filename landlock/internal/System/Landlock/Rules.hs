@@ -9,21 +9,33 @@ module System.Landlock.Rules
   ( Rule,
     RuleType (..),
     ruleType,
+    netPort,
+    AccessNetFlag (..),
     pathBeneath,
     AccessFsFlag (..),
   )
 where
 
 import Foreign.Storable (Storable (..))
+import Network.Socket (PortNumber)
 import System.Landlock.Flags
   ( AccessFsFlag (..),
+    AccessNetFlag (..),
     accessFsFlagToBit,
+    accessNetFlagToBit,
     fromBits,
     toBits,
   )
 import System.Landlock.Hsc
   ( Landlock_rule_type,
+    lANDLOCK_RULE_NET_PORT,
     lANDLOCK_RULE_PATH_BENEATH,
+    landlock_net_port_attr_alignment,
+    landlock_net_port_attr_peek_allowed_access,
+    landlock_net_port_attr_peek_port,
+    landlock_net_port_attr_poke_allowed_access,
+    landlock_net_port_attr_poke_port,
+    landlock_net_port_attr_size,
     landlock_path_beneath_attr_alignment,
     landlock_path_beneath_attr_peek_allowed_access,
     landlock_path_beneath_attr_peek_parent_fd,
@@ -34,13 +46,14 @@ import System.Landlock.Hsc
 import System.Posix.Types (Fd)
 
 -- | Kind of 'Rule's.
-data RuleType = PathBeneath
+data RuleType = PathBeneath | NetPort
 
 -- | A rule enforced by Landlock, to be registered using 'System.Landlock.addRule'.
 --
 -- 'Rule's can be constructed using the relevant functions, like 'pathBeneath'.
 data Rule (a :: RuleType) where
   PathBeneathRule :: [AccessFsFlag] -> Fd -> Rule 'PathBeneath
+  NetPortRule :: [AccessNetFlag] -> PortNumber -> Rule 'NetPort
 
 deriving instance Show (Rule a)
 
@@ -50,6 +63,7 @@ deriving instance Eq (Rule a)
 ruleType :: Rule a -> Landlock_rule_type
 ruleType = \case
   PathBeneathRule {} -> lANDLOCK_RULE_PATH_BENEATH
+  NetPortRule {} -> lANDLOCK_RULE_NET_PORT
 
 instance Storable (Rule 'PathBeneath) where
   sizeOf _ = landlock_path_beneath_attr_size
@@ -67,6 +81,22 @@ instance Storable (Rule 'PathBeneath) where
     landlock_path_beneath_attr_poke_allowed_access ptr allowedAccess
     landlock_path_beneath_attr_poke_parent_fd ptr parentFd
 
+instance Storable (Rule 'NetPort) where
+  sizeOf _ = landlock_net_port_attr_size
+  alignment _ = landlock_net_port_attr_alignment
+  peek ptr = do
+    allowedAccess <- landlock_net_port_attr_peek_allowed_access ptr
+    port <- landlock_net_port_attr_peek_port ptr
+    return $
+      NetPortRule
+        (fromBits accessNetFlagToBit allowedAccess)
+        (fromIntegral port)
+  poke ptr (NetPortRule flags port) = do
+    let allowedAccess = toBits accessNetFlagToBit flags
+        port' = fromIntegral port
+    landlock_net_port_attr_poke_allowed_access ptr allowedAccess
+    landlock_net_port_attr_poke_port ptr port'
+
 -- | Construct a path hierarchy rule definition.
 --
 -- This corresponds to a rule of type
@@ -83,3 +113,6 @@ pathBeneath ::
   [AccessFsFlag] ->
   Rule 'PathBeneath
 pathBeneath fd flags = PathBeneathRule flags fd
+
+netPort :: PortNumber -> [AccessNetFlag] -> Rule 'NetPort
+netPort port flags = NetPortRule flags port
