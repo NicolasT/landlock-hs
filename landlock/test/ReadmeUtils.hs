@@ -4,6 +4,10 @@ module ReadmeUtils
     handleJust,
     -- Control.Monad
     unless,
+    -- Data.List
+    sort,
+    -- Data.Maybe
+    listToMaybe,
     -- System.Directory
     removeFile,
     -- System.FilePath
@@ -22,6 +26,8 @@ where
 
 import Control.Exception.Base (handleJust)
 import Control.Monad (unless)
+import Data.List (sort)
+import Data.Maybe (listToMaybe)
 import System.Directory (createDirectory, removeFile)
 import System.FilePath ((</>))
 import System.IO (IOMode (..), hPutStrLn, withFile)
