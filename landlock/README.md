@@ -105,9 +105,7 @@ main = withFakeRoot $ \root -> do
         readFile ("/etc" </> "hosts")
 
   where
-    lookupAccessFsFlags version = case lookup version accessFsFlags of
-        -- In a production implementation, we'd lookup the "best matching" flag
-        -- set, not require an exact match.
+    lookupAccessFsFlags version = case lookupMax version accessFsFlags of
         Nothing -> fail "Unsupported ABI version"
         Just flags -> return flags
 
@@ -115,4 +113,10 @@ main = withFakeRoot $ \root -> do
         _ <- act
         fail "Expected permission error"
     permissionDenied e = if isPermissionError e then Just () else Nothing
+
+    lookupMax key = fmap snd
+                  . listToMaybe
+                  . reverse
+                  . sort
+                  . filter (\(k, _) -> key >= k)
 ```
