@@ -77,9 +77,10 @@ import Control.Exception.Base (handleJust)
 import Control.Monad (void)
 import Control.Monad.Catch (MonadMask, bracket)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Foreign.Marshal.Utils (with)
-import Foreign.Ptr (nullPtr)
-import Foreign.Storable (Storable, sizeOf)
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Marshal.Utils (fillBytes)
+import Foreign.Ptr (Ptr, nullPtr)
+import Foreign.Storable (Storable, poke, sizeOf)
 import GHC.IO.Exception (IOErrorType (UnsupportedOperation))
 import System.IO.Error (ioeGetErrorType)
 import System.Landlock.Flags
@@ -114,6 +115,15 @@ import System.Landlock.Syscalls
 import System.Landlock.Version (Version (..), version1, version2, version3)
 import System.Posix.IO (closeFd)
 import System.Posix.Types (Fd)
+
+-- Like @Foreign.Marshal.Utils.with@, but zeros out the memory first
+with0 :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
+with0 val f =
+  alloca $ \ptr -> do
+    let len = sizeOf val
+    fillBytes ptr 0 len
+    poke ptr val
+    f ptr
 
 -- | Retrieve the Landlock ABI version of the running system.
 --
@@ -166,7 +176,7 @@ newtype LandlockFd = LandlockFd {unLandlockFd :: Fd}
   deriving (Show, Eq)
 
 createRuleset :: RulesetAttr -> [CreateRulesetFlag] -> IO LandlockFd
-createRuleset attr flags = with attr' $ \attrp ->
+createRuleset attr flags = with0 attr' $ \attrp ->
   wrap <$> landlock_create_ruleset attrp (fromIntegral $ sizeOf attr') flags'
   where
     wrap = LandlockFd . fromIntegral
@@ -244,7 +254,7 @@ addRule ::
   [AddRuleFlag] ->
   m ()
 addRule fd rule flags = liftIO $
-  with rule $ \ruleAttrp ->
+  with0 rule $ \ruleAttrp ->
     landlock_add_rule
       (fromIntegral $ unLandlockFd fd)
       (ruleType rule)

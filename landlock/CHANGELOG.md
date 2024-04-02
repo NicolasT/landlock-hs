@@ -14,6 +14,8 @@
 
 * Support `filepath ^>=1.5`.
 
+* Properly zero-out structs after allocation.
+
 ## 0.2.1.1 -- 2023-02-28
 
 * Extend API documentation with links to man-pages.
