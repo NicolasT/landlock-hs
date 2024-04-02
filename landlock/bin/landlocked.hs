@@ -34,11 +34,13 @@ import System.IO (hPutStrLn, stderr)
 import System.IO.Error (isDoesNotExistError, isPermissionError)
 import System.Landlock
   ( AccessFsFlag,
+    AccessNetFlag,
     RulesetAttr (..),
     Version,
     abiVersion,
     accessFsFlagIsReadOnly,
     accessFsFlags,
+    accessNetFlags,
     defaultOpenPathFlags,
     getVersion,
     isSupported,
@@ -57,21 +59,21 @@ main = do
 
   version <- abiVersion
 
-  (usedVersion, allFlags) <- case lookupAccessFsFlags version of
+  (usedVersion, allFsFlags, allNetFlags) <- case lookupFlags version of
     Nothing -> fail $ "Unable to retrieve file-system access flags for Landlock ABI " ++ show (getVersion version)
     Just r -> return r
-  let roFlags = filter accessFsFlagIsReadOnly allFlags
+  let roFlags = filter accessFsFlagIsReadOnly allFsFlags
 
   args <- execParser (parser version usedVersion)
 
-  landlock (RulesetAttr allFlags) [] [] $ \addRule -> do
+  landlock (RulesetAttr allFsFlags allNetFlags) [] [] $ \addRule -> do
     forM_ (argsROPaths args) $ \path ->
       withOpenPath path defaultOpenPathFlags $ \fd ->
         addRule (pathBeneath fd roFlags) []
 
     forM_ (argsRWPaths args) $ \path ->
       withOpenPath path defaultOpenPathFlags $ \fd ->
-        addRule (pathBeneath fd allFlags) []
+        addRule (pathBeneath fd allFsFlags) []
 
   handleJust permissionDenied handlePermissionDenied $
     handleJust notFound handleNotFound $ do
@@ -173,8 +175,18 @@ parser version usedVersion =
 filePath :: ReadM FilePath
 filePath = str
 
-lookupAccessFsFlags :: Version -> Maybe (Version, [AccessFsFlag])
-lookupAccessFsFlags v =
-  listToMaybe $
-    sortOn (Down . fst) $
-      filter (\(v', _) -> v' <= v) accessFsFlags
+lookupFlags :: Version -> Maybe (Version, [AccessFsFlag], [AccessNetFlag])
+lookupFlags v = case (accessFsFlags', accessNetFlags') of
+  (Just (v1, fsFlags), Just (v2, netFlags)) -> Just (max v1 v2, fsFlags, netFlags)
+  (Nothing, Just (v', netFlags)) -> Just (v', [], netFlags)
+  (Just (v', fsFlags), Nothing) -> Just (v', fsFlags, [])
+  (Nothing, Nothing) -> Nothing
+  where
+    accessFsFlags' =
+      listToMaybe $
+        sortOn (Down . fst) $
+          filter (\(v', _) -> v' <= v) accessFsFlags
+    accessNetFlags' =
+      listToMaybe $
+        sortOn (Down . fst) $
+          filter (\(v', _) -> v' <= v) accessNetFlags

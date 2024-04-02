@@ -23,6 +23,9 @@ module System.Landlock.Hsc (
   lANDLOCK_ACCESS_FS_REFER,
   lANDLOCK_ACCESS_FS_TRUNCATE,
 
+  lANDLOCK_ACCESS_NET_BIND_TCP,
+  lANDLOCK_ACCESS_NET_CONNECT_TCP,
+
   lANDLOCK_CREATE_RULESET_VERSION,
 
   U32,
@@ -35,6 +38,8 @@ module System.Landlock.Hsc (
   landlock_ruleset_attr_alignment,
   landlock_ruleset_attr_peek_handled_access_fs,
   landlock_ruleset_attr_poke_handled_access_fs,
+  landlock_ruleset_attr_peek_handled_access_net,
+  landlock_ruleset_attr_poke_handled_access_net,
 
   lANDLOCK_RULE_PATH_BENEATH,
   landlock_path_beneath_attr_size,
@@ -43,6 +48,14 @@ module System.Landlock.Hsc (
   landlock_path_beneath_attr_poke_allowed_access,
   landlock_path_beneath_attr_peek_parent_fd,
   landlock_path_beneath_attr_poke_parent_fd,
+
+  lANDLOCK_RULE_NET_PORT,
+  landlock_net_port_attr_size,
+  landlock_net_port_attr_alignment,
+  landlock_net_port_attr_peek_allowed_access,
+  landlock_net_port_attr_poke_allowed_access,
+  landlock_net_port_attr_peek_port,
+  landlock_net_port_attr_poke_port,
 ) where
 
 #define _GNU_SOURCE
@@ -124,6 +137,12 @@ lANDLOCK_ACCESS_FS_REFER = #{const LANDLOCK_ACCESS_FS_REFER}
 lANDLOCK_ACCESS_FS_TRUNCATE :: #{type __u64}
 lANDLOCK_ACCESS_FS_TRUNCATE = #{const LANDLOCK_ACCESS_FS_TRUNCATE}
 
+lANDLOCK_ACCESS_NET_BIND_TCP :: #{type __u64}
+lANDLOCK_ACCESS_NET_BIND_TCP = #{const LANDLOCK_ACCESS_NET_BIND_TCP}
+
+lANDLOCK_ACCESS_NET_CONNECT_TCP :: #{type __u64}
+lANDLOCK_ACCESS_NET_CONNECT_TCP = #{const LANDLOCK_ACCESS_NET_CONNECT_TCP}
+
 lANDLOCK_CREATE_RULESET_VERSION :: #{type __u32}
 lANDLOCK_CREATE_RULESET_VERSION = #{const LANDLOCK_CREATE_RULESET_VERSION}
 
@@ -148,6 +167,14 @@ landlock_ruleset_attr_peek_handled_access_fs =
 landlock_ruleset_attr_poke_handled_access_fs :: Ptr a -> #{type __u64} -> IO ()
 landlock_ruleset_attr_poke_handled_access_fs =
   #{poke struct landlock_ruleset_attr, handled_access_fs}
+
+landlock_ruleset_attr_peek_handled_access_net :: Ptr a -> IO #{type __u64}
+landlock_ruleset_attr_peek_handled_access_net =
+  #{peek struct landlock_ruleset_attr, handled_access_net}
+
+landlock_ruleset_attr_poke_handled_access_net :: Ptr a -> #{type __u64} -> IO ()
+landlock_ruleset_attr_poke_handled_access_net =
+  #{poke struct landlock_ruleset_attr, handled_access_net}
 
 lANDLOCK_RULE_PATH_BENEATH :: #{type enum landlock_rule_type}
 lANDLOCK_RULE_PATH_BENEATH = #{const LANDLOCK_RULE_PATH_BENEATH}
@@ -176,4 +203,28 @@ landlock_path_beneath_attr_poke_parent_fd :: Ptr a -> #{type __s32} -> IO ()
 landlock_path_beneath_attr_poke_parent_fd =
   #{poke struct landlock_path_beneath_attr, parent_fd}
 
+lANDLOCK_RULE_NET_PORT :: #{type enum landlock_rule_type}
+lANDLOCK_RULE_NET_PORT = #{const LANDLOCK_RULE_NET_PORT}
 
+landlock_net_port_attr_size :: Int
+landlock_net_port_attr_size = #{size struct landlock_net_port_attr}
+
+landlock_net_port_attr_alignment :: Int
+landlock_net_port_attr_alignment =
+  #{alignment struct landlock_net_port_attr}
+
+landlock_net_port_attr_peek_allowed_access :: Ptr a -> IO #{type __u64}
+landlock_net_port_attr_peek_allowed_access =
+  #{peek struct landlock_net_port_attr, allowed_access}
+
+landlock_net_port_attr_poke_allowed_access :: Ptr a -> #{type __u64} -> IO ()
+landlock_net_port_attr_poke_allowed_access =
+  #{poke struct landlock_net_port_attr, allowed_access}
+
+landlock_net_port_attr_peek_port :: Ptr a -> IO #{type __u64}
+landlock_net_port_attr_peek_port =
+  #{peek struct landlock_net_port_attr, port}
+
+landlock_net_port_attr_poke_port :: Ptr a -> #{type __u64} -> IO ()
+landlock_net_port_attr_poke_port =
+  #{poke struct landlock_net_port_attr, port}

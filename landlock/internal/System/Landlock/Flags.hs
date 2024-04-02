@@ -9,6 +9,9 @@ module System.Landlock.Flags
     accessFsFlagToBit,
     accessFsFlags,
     accessFsFlagIsReadOnly,
+    AccessNetFlag (..),
+    accessNetFlagToBit,
+    accessNetFlags,
     CreateRulesetFlag (..),
     createRulesetFlagToBit,
     RestrictSelfFlag,
@@ -37,9 +40,11 @@ import System.Landlock.Hsc
     lANDLOCK_ACCESS_FS_REMOVE_FILE,
     lANDLOCK_ACCESS_FS_TRUNCATE,
     lANDLOCK_ACCESS_FS_WRITE_FILE,
+    lANDLOCK_ACCESS_NET_BIND_TCP,
+    lANDLOCK_ACCESS_NET_CONNECT_TCP,
     lANDLOCK_CREATE_RULESET_VERSION,
   )
-import System.Landlock.Version (Version, version1, version2, version3)
+import System.Landlock.Version (Version, version1, version2, version3, version4)
 
 -- | Fold a set of flags into a bitset/number.
 toBits :: (Num b, Bits b, Foldable f) => (a -> b) -> f a -> b
@@ -222,7 +227,8 @@ accessFsFlags =
     | v <-
         [ version1,
           version2,
-          version3
+          version3,
+          version4
         ]
   ]
   where
@@ -261,6 +267,31 @@ accessFsFlagIsReadOnly = \case
   AccessFsMakeSym -> False
   AccessFsRefer -> False
   AccessFsTruncate -> False
+
+data AccessNetFlag
+  = AccessNetBindTcp
+  | AccessNetConnectTcp
+  deriving (Show, Eq, Enum, Bounded, Ord)
+
+accessNetFlagToBit :: AccessNetFlag -> U64
+accessNetFlagToBit = \case
+  AccessNetBindTcp -> lANDLOCK_ACCESS_NET_BIND_TCP
+  AccessNetConnectTcp -> lANDLOCK_ACCESS_NET_CONNECT_TCP
+
+accessNetFlags :: [(Version, [AccessNetFlag])]
+accessNetFlags =
+  [ (v, [f | f <- [minBound ..], version f <= v])
+    | v <-
+        [ version1,
+          version2,
+          version3,
+          version4
+        ]
+  ]
+  where
+    version = \case
+      AccessNetBindTcp -> version4
+      AccessNetConnectTcp -> version4
 
 -- | Flags passed to @landlock_create_ruleset@.
 --

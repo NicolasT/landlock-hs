@@ -38,11 +38,14 @@ module System.Landlock
     AccessFsFlag (..),
     accessFsFlags,
     accessFsFlagIsReadOnly,
+    AccessNetFlag (..),
+    accessNetFlags,
 
     -- * Sandboxing Rules
 
     -- | Sandboxing rules to apply.
     Rule,
+    netPort,
     pathBeneath,
 
     -- * Utility Functions
@@ -59,6 +62,7 @@ module System.Landlock
     version1,
     version2,
     version3,
+    version4,
 
     -- ** Opening paths using @O_PATH@
 
@@ -85,12 +89,15 @@ import GHC.IO.Exception (IOErrorType (UnsupportedOperation))
 import System.IO.Error (ioeGetErrorType)
 import System.Landlock.Flags
   ( AccessFsFlag (..),
+    AccessNetFlag (..),
     AddRuleFlag,
     CreateRulesetFlag (..),
     RestrictSelfFlag,
     accessFsFlagIsReadOnly,
     accessFsFlagToBit,
     accessFsFlags,
+    accessNetFlagToBit,
+    accessNetFlags,
     addRuleFlagToBit,
     createRulesetFlagToBit,
     restrictSelfFlagToBit,
@@ -102,7 +109,7 @@ import System.Landlock.OpenPath
     withOpenPath,
     withOpenPathAt,
   )
-import System.Landlock.Rules (Rule, pathBeneath, ruleType)
+import System.Landlock.Rules (Rule, netPort, pathBeneath, ruleType)
 import System.Landlock.Syscalls
   ( LandlockRulesetAttr (..),
     landlock_add_rule,
@@ -112,7 +119,7 @@ import System.Landlock.Syscalls
     prctl,
     throwIfNonZero,
   )
-import System.Landlock.Version (Version (..), version1, version2, version3)
+import System.Landlock.Version (Version (..), version1, version2, version3, version4)
 import System.Posix.IO (closeFd)
 import System.Posix.Types (Fd)
 
@@ -167,7 +174,8 @@ data RulesetAttr = RulesetAttr
     -- forbidden if no rule explicitly allow them.
     -- This is needed for backward compatibility
     -- reasons.
-    rulesetAttrHandledAccessFs :: [AccessFsFlag]
+    rulesetAttrHandledAccessFs :: [AccessFsFlag],
+    rulesetAttrHandledAccessNet :: [AccessNetFlag]
   }
   deriving (Show, Eq)
 
@@ -182,9 +190,11 @@ createRuleset attr flags = with0 attr' $ \attrp ->
     wrap = LandlockFd . fromIntegral
     attr' =
       LandlockRulesetAttr
-        { landlockRulesetAttrHandledAccessFs = handledAccessFs
+        { landlockRulesetAttrHandledAccessFs = handledAccessFs,
+          landlockRulesetAttrHandledAccessNet = handledAccessNet
         }
     handledAccessFs = toBits accessFsFlagToBit (rulesetAttrHandledAccessFs attr)
+    handledAccessNet = toBits accessNetFlagToBit (rulesetAttrHandledAccessNet attr)
     flags' = toBits createRulesetFlagToBit flags
 
 restrictSelf :: LandlockFd -> [RestrictSelfFlag] -> IO ()

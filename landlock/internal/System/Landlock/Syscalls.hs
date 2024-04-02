@@ -23,14 +23,17 @@ import System.Landlock.Hsc
     U64,
     landlock_ruleset_attr_alignment,
     landlock_ruleset_attr_peek_handled_access_fs,
+    landlock_ruleset_attr_peek_handled_access_net,
     landlock_ruleset_attr_poke_handled_access_fs,
+    landlock_ruleset_attr_poke_handled_access_net,
     landlock_ruleset_attr_size,
     pR_SET_NO_NEW_PRIVS,
   )
 
 {- HLINT ignore LandlockRulesetAttr "Use newtype instead of data" -}
 data LandlockRulesetAttr = LandlockRulesetAttr
-  { landlockRulesetAttrHandledAccessFs :: U64
+  { landlockRulesetAttrHandledAccessFs :: U64,
+    landlockRulesetAttrHandledAccessNet :: U64
   }
   deriving (Show, Eq)
 
@@ -40,10 +43,14 @@ instance Storable LandlockRulesetAttr where
   peek ptr =
     LandlockRulesetAttr
       <$> landlock_ruleset_attr_peek_handled_access_fs ptr
-  poke ptr attr =
+      <*> landlock_ruleset_attr_peek_handled_access_net ptr
+  poke ptr attr = do
     landlock_ruleset_attr_poke_handled_access_fs
       ptr
       (landlockRulesetAttrHandledAccessFs attr)
+    landlock_ruleset_attr_poke_handled_access_net
+      ptr
+      (landlockRulesetAttrHandledAccessNet attr)
 
 foreign import capi unsafe "hs-landlock.h hs_landlock_create_ruleset"
   _landlock_create_ruleset ::

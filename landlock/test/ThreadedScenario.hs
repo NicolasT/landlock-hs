@@ -34,7 +34,7 @@ scenario' withAsync step = do
 
     step "Setting up Landlock sandbox"
     let flags = [AccessFsReadFile]
-    landlock (RulesetAttr flags) [] [] $ \_ -> return ()
+    landlock (RulesetAttr flags []) [] [] $ \_ -> return ()
 
     step "Assert file not readable from main thread"
     assertFileNotReadable "main"
