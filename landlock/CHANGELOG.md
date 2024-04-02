@@ -16,6 +16,8 @@
 
 * Properly zero-out structs after allocation.
 
+* Update `landlock.h` to Linux 6.8.
+
 ## 0.2.1.1 -- 2023-02-28
 
 * Extend API documentation with links to man-pages.
