@@ -11,7 +11,6 @@ import Control.Exception.Base (handleJust)
 import Control.Monad (unless)
 import Data.List (nub, sort, (\\))
 import Data.Proxy (Proxy (Proxy))
-import Network.Socket (PortNumber)
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import System.FilePath ((</>))
@@ -181,7 +180,7 @@ instance Arbitrary (Rule 'PathBeneath) where
 instance Arbitrary (Rule 'NetPort) where
   arbitrary =
     netPort
-      <$> fmap (fromIntegral :: Int -> PortNumber) arbitrary
+      <$> arbitraryBoundedEnum
       <*> fmap (nub . sort) arbitrary
 
 instance Arbitrary AccessFsFlag where
